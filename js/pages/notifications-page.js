@@ -1,0 +1,9 @@
+import { formatDateTime, titleize } from '../utils/helpers.js';
+function renderNotificationItem(item) {
+  const route = item.clickRoute || 'home';
+  return `<article class="notification-card ${item.isRead ? '' : 'is-unread'}"><div class="notification-copy"><div class="notification-head"><strong>${item.title || titleize(item.type || 'notification')}</strong>${item.isRead ? '<span class="badge">Read</span>' : '<span class="badge badge-unread">Unread</span>'}</div><p>${item.body || ''}</p><div class="notification-meta">${formatDateTime(item.createdAt)} • ${titleize(item.type || 'alert')}</div></div><div class="notification-actions">${item.isRead ? '' : `<button class="mini-btn" type="button" data-notification-read="${item.id}">Mark read</button>`}<button class="mini-btn" type="button" data-notification-open="${route}" data-notification-id="${item.id}">Open</button></div></article>`;
+}
+export function renderNotificationsPage(user, snapshot = {}) {
+  const items = (snapshot.items || []).map(renderNotificationItem).join('');
+  return `<section class="page-section"><article class="card profile-card"><p class="eyebrow">Notification center</p><h2>${snapshot.unreadCount || 0} unread alerts</h2><p class="muted">Realtime alerts for chat replies, HK requests, towel activity, scan approvals, and reward updates.</p><div class="queue-actions-inline" style="margin-top:12px"><button class="btn btn-secondary" type="button" data-notification-mark-all>Mark all as read</button><button class="btn btn-primary" type="button" data-route="home">Back to home</button></div></article></section><section class="page-section"><div class="notification-list">${items || '<article class="empty-state"><strong>No notifications yet</strong><p class="muted">New operational alerts will appear here in realtime.</p></article>'}</div></section>`;
+}

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>LAYA Card System – Login</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/pages/login.css" />
+</head>
+<body class="login-body">
+  <main class="login-shell">
+    <section class="login-card">
+      <div class="brand-block">
+        <div class="brand-mark">LAYA</div>
+        <p class="brand-subtitle">Card & Member System</p>
+        <span class="badge" id="runtime-badge">Loading runtime...</span>
+      </div>
+
+      <header class="login-header">
+        <h1>Welcome back</h1>
+        <p id="mode-help">Sign in to access your member card, balance, rewards, dashboard, and scan center.</p>
+      </header>
+
+      <form id="login-form" class="login-form">
+        <label>
+          <span>Email</span>
+          <input id="email" type="email" placeholder="name@example.com" />
+        </label>
+
+        <label>
+          <span>Password</span>
+          <input id="password" type="password" placeholder="••••••••" />
+        </label>
+
+        <button class="btn btn-primary" type="submit">Login</button>
+              <div id="login-feedback" class="inline-feedback" hidden></div>
+      </form>
+
+      <section class="portal-strip card-soft">
+        <div>
+          <strong>Guest Portal</strong>
+          <p class="muted">Open the separate guest link for room number + stay period login.</p>
+        </div>
+        <a class="btn btn-secondary" href="./guest.html">Open guest portal</a>
+      </section>
+
+      <section class="login-actions" id="demo-section" hidden>
+        <p class="muted">Demo mode is enabled for non-production testing only.</p>
+        <div class="demo-grid demo-grid-4">
+          <button class="btn btn-secondary" data-demo-role="member">Member</button>
+          <button class="btn btn-secondary" data-demo-role="guest">Guest</button>
+          <button class="btn btn-secondary" data-demo-role="staff">Staff</button>
+          <button class="btn btn-secondary" data-demo-role="admin">Admin</button>
+        </div>
+      </section>
+
+      <footer class="login-footer">
+        <a href="#" id="install-app-link">Install app</a>
+        <span>•</span>
+        <a href="#" id="clear-cache-link">Clear cache</a>
+        <span>•</span>
+        <span id="app-version">v2.0.0</span>
+      </footer>
+    </section>
+  </main>
+
+  <script type="module" src="js/login-page.js"></script>
+</body>
+</html>
