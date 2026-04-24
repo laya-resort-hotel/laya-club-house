@@ -39,26 +39,35 @@ export function renderScanCenterPage(user, snapshot = {}) {
   `).join('');
 
   return `
+    <section class="hero-card card">
+      <div class="hero-meta">
+        <div class="page-intro">
+          <p class="eyebrow">Scan center</p>
+          <h2>Fast operator workflow</h2>
+          <p>Scan a QR, review the member details, then create a request for top-up, deduction, points, or towel flow.</p>
+        </div>
+        <span class="badge">${user.department || user.role || 'staff'}</span>
+      </div>
+    </section>
+
     <section class="grid grid-2 scan-layout">
       <article class="card scan-panel">
-        <div class="hero-meta">
+        <div class="section-head">
           <div>
-            <p class="eyebrow">Scan center</p>
-            <h2>Operations queue</h2>
+            <h2>Scanner</h2>
+            <p>Use camera scan first. If needed, type the code manually and press Lookup card.</p>
           </div>
-          <span class="badge">${user.department || user.role || 'staff'}</span>
         </div>
 
         <div class="scanner-box">
           <video id="scanner-video" class="scanner-video" playsinline muted></video>
-          <div id="scanner-reader" class="scanner-reader" hidden></div>
           <div class="scanner-overlay">QR Scanner</div>
         </div>
         <div class="scanner-toolbar">
           <button type="button" class="btn btn-secondary" id="start-scan-btn">Start camera scanner</button>
           <button type="button" class="btn btn-secondary" id="stop-scan-btn">Stop scanner</button>
         </div>
-        <p id="scanner-status" class="muted scanner-status">Use the camera to scan a QR code. BarcodeDetector runs first, and the scanner will fall back automatically if this browser needs a more compatible engine.</p>
+        <p id="scanner-status" class="muted scanner-status">Use the camera to scan a QR code, or type the code manually below.</p>
 
         <div class="mode-grid">${modeButtons}</div>
 
@@ -71,14 +80,16 @@ export function renderScanCenterPage(user, snapshot = {}) {
           <div class="inline-actions">
             <button class="btn btn-secondary" type="button" id="lookup-card-btn">Lookup card</button>
           </div>
-          <label>
-            <span>Amount (THB)</span>
-            <input id="scan-amount" type="number" min="0" step="1" placeholder="0" />
-          </label>
-          <label>
-            <span>Points</span>
-            <input id="scan-points" type="number" min="0" step="1" placeholder="0" />
-          </label>
+          <div class="grid grid-2">
+            <label>
+              <span>Amount (THB)</span>
+              <input id="scan-amount" type="number" min="0" step="1" placeholder="0" />
+            </label>
+            <label>
+              <span>Points</span>
+              <input id="scan-points" type="number" min="0" step="1" placeholder="0" />
+            </label>
+          </div>
           <label>
             <span>Towel location</span>
             <select id="scan-location">
@@ -95,7 +106,12 @@ export function renderScanCenterPage(user, snapshot = {}) {
       </article>
 
       <article class="card scan-preview-card">
-        <p class="eyebrow">Member preview</p>
+        <div class="section-head">
+          <div>
+            <h2>Member preview</h2>
+            <p>Review the account before processing any movement.</p>
+          </div>
+        </div>
         ${preview ? `
           <div class="scan-preview">
             <h3>${preview.displayName || preview.userId}</h3>
@@ -120,7 +136,12 @@ export function renderScanCenterPage(user, snapshot = {}) {
     </section>
 
     <section class="page-section">
-      <h2>Recent queue</h2>
+      <div class="section-head">
+        <div>
+          <h2>Recent queue</h2>
+          <p>Latest scan requests waiting for action or already completed.</p>
+        </div>
+      </div>
       <div class="list">${recent || '<article class="transaction-item"><div><strong>No scan requests yet</strong><p class="muted">Requests created here will show in the queue.</p></div><strong>-</strong></article>'}</div>
     </section>
   `;

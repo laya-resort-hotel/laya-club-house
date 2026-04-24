@@ -34,14 +34,12 @@ function renderLatestItem(item) {
 
 export function renderHomePage(user, snapshot = {}) {
   const links = (snapshot.quickServices || []).slice(0, 6).map(renderQuickAction).join('');
-
   const notices = (snapshot.notices || []).slice(0, 3).map((item) => `
     <article class="notice-card">
       <strong>${item.title || 'Notice'}</strong>
       <p class="muted">${item.body || item.description || 'No detail yet.'}</p>
     </article>
   `).join('');
-
   const latest = (snapshot.latestRequests || []).slice(0, 5).map(renderLatestItem).join('');
 
   const stayCopy = user.stayStart && user.stayEnd
@@ -51,44 +49,72 @@ export function renderHomePage(user, snapshot = {}) {
   return `
     <section class="hero-card card">
       <div class="hero-meta">
-        <div>
+        <div class="page-intro">
           <p class="eyebrow">Welcome</p>
           <h2>${user.displayName || 'Member'}</h2>
-          <p class="muted">${stayCopy}${user.roomNo ? ` • Room ${user.roomNo}` : ''}</p>
+          <p>${stayCopy}${user.roomNo ? ` • Room ${user.roomNo}` : ''}</p>
         </div>
         <span class="badge">${user.role || 'member'}</span>
       </div>
 
-      <div class="hero-grid">
-        <div class="kpi">
-          <span class="muted">Balance</span>
+      <div class="hero-summary-grid">
+        <article class="stat-card">
+          <span class="kpi-label">Balance</span>
           <strong>${money(user.balance || 0)}</strong>
-        </div>
-        <div class="kpi">
-          <span class="muted">Points</span>
+          <span class="muted">Available to spend</span>
+        </article>
+        <article class="stat-card">
+          <span class="kpi-label">Points</span>
           <strong>${points(user.points || 0)}</strong>
-        </div>
+          <span class="muted">Reward balance</span>
+        </article>
+        <article class="stat-card">
+          <span class="kpi-label">Notifications</span>
+          <strong>${snapshot.unreadNotifications || 0}</strong>
+          <span class="muted">Unread alerts</span>
+        </article>
       </div>
 
-      <div class="info-row">
-        <span class="badge">Unread ${snapshot.unreadNotifications || 0}</span>
-        ${user.guestExpiryAt ? `<span class="badge">Guest expires ${String(user.guestExpiryAt).slice(0, 16)}</span>` : '<span class="badge">Member card ready</span>'}
+      <div class="feature-callout">
+        <strong>Today at a glance</strong>
+        <p class="muted">Use quick services below to open room dining, request housekeeping items, or chat with hotel departments in real time.</p>
+        <div class="info-row">
+          ${user.guestExpiryAt ? `<span class="badge">Guest expires ${String(user.guestExpiryAt).slice(0, 16)}</span>` : '<span class="badge">Member card ready</span>'}
+          <span class="badge">Fast access from this screen</span>
+        </div>
       </div>
     </section>
 
     <section class="page-section">
-      <h2>Quick services</h2>
+      <div class="section-head">
+        <div>
+          <h2>Quick services</h2>
+          <p>Shortcuts for the tasks people use most often.</p>
+        </div>
+      </div>
       <div class="quick-grid">${links || '<article class="quick-card card"><h3>No service links</h3><p>Configure Firestore content links to show hotel actions here.</p></article>'}</div>
     </section>
 
-    <section class="page-section">
-      <h2>Latest activity</h2>
-      <div class="list">${latest || '<article class="transaction-item"><div><strong>No recent activity</strong><p class="muted">HK requests, towel activity, and department chat will appear here.</p></div><strong>-</strong></article>'}</div>
-    </section>
+    <section class="page-grid-2">
+      <section class="page-section">
+        <div class="section-head">
+          <div>
+            <h2>Latest activity</h2>
+            <p>Recent requests and operational updates linked to your account.</p>
+          </div>
+        </div>
+        <div class="list">${latest || '<article class="transaction-item"><div><strong>No recent activity</strong><p class="muted">HK requests, towel activity, and department chat will appear here.</p></div><strong>-</strong></article>'}</div>
+      </section>
 
-    <section class="page-section">
-      <h2>Notices</h2>
-      <div class="stack-list">${notices || '<article class="notice-card"><strong>No notices yet</strong><p class="muted">Connect content_banners for live hotel messages.</p></article>'}</div>
+      <section class="page-section">
+        <div class="section-head">
+          <div>
+            <h2>Notices</h2>
+            <p>Important messages and hotel updates.</p>
+          </div>
+        </div>
+        <div class="stack-list">${notices || '<article class="notice-card"><strong>No notices yet</strong><p class="muted">Connect content_banners for live hotel messages.</p></article>'}</div>
+      </section>
     </section>
   `;
 }
