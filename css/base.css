@@ -663,8 +663,8 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (min-width: 900px) {
-  body { display: flex; justify-content: center; }
-  .app-shell, .login-shell { width: min(100%, var(--max)); }
+  /* Login shell remains centered; app-shell handled in app.css */
+  .login-shell { width: min(100%, 520px); margin: 0 auto; }
 }
 @media (max-width: 960px) {
   .page-grid-2, .scan-layout { grid-template-columns: 1fr; }
