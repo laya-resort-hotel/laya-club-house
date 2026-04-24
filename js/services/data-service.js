@@ -360,6 +360,22 @@ export async function loadMemberSnapshot(user) {
   };
 }
 
+async function readActiveRewardsForRedeem() {
+  // Avoid composite-index dependency here. A query like
+  // where(active == true) + orderBy(sortOrder) can fail while the Firestore
+  // index is missing/building, which previously made Redeem show an empty list.
+  // Read active rewards first, then sort client-side.
+  const rows = await readCollection('rewards', {
+    where: [{ field: 'active', op: '==', value: true }],
+    limit: 50
+  });
+
+  return sortBySortOrder(rows)
+    .filter((item) => item.active === true)
+    .filter((item) => Number(item.stock ?? 0) > 0 || item.stock === '' || item.stock == null)
+    .slice(0, 30);
+}
+
 export async function loadRedeemSnapshot(user) {
   if (!user?.uid && !shouldUseDemoData()) throw new Error('Redeem snapshot requires an authenticated production user.');
   if (shouldUseDemoData()) {
@@ -370,13 +386,18 @@ export async function loadRedeemSnapshot(user) {
     };
   }
 
-  const [rewards, redemptions, pointAccount] = await Promise.all([
-    readCollection('rewards', { where: [{ field: 'active', op: '==', value: true }], orderBy: { field: 'sortOrder', dir: 'asc' }, limit: 30 }).catch(() => []),
+  const [rewardsResult, redemptions, pointAccount] = await Promise.all([
+    readActiveRewardsForRedeem().then((items) => ({ items, error: null })).catch((error) => ({ items: [], error })),
     readCollection('redemptions', { where: [{ field: 'userId', op: '==', value: user.uid }], orderBy: { field: 'redeemedAt', dir: 'desc' }, limit: 20 }).catch(() => []),
     readSingleByUserId('point_accounts', user.uid).catch(() => null)
   ]);
 
-  return { rewards, redemptions, pointAccount };
+  return {
+    rewards: rewardsResult.items,
+    rewardLoadError: rewardsResult.error?.message || '',
+    redemptions,
+    pointAccount
+  };
 }
 
 export async function requestRewardRedemption(user, reward) {

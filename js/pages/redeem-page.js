@@ -81,7 +81,7 @@ export function renderRedeemPage(user, snapshot = {}) {
             <p>Browse live rewards and redeem with one tap.</p>
           </div>
         </div>
-        <div class="reward-list">${rewards || '<article class="card content-card"><p class="muted">No active rewards found.</p></article>'}</div>
+        <div class="reward-list">${rewards || `<article class="card content-card"><p class="muted">No active rewards found.</p>${snapshot.rewardLoadError ? `<p class="muted small-text">Reward load note: ${escapeHtml(snapshot.rewardLoadError)}</p>` : ''}</article>`}</div>
       </section>
 
       <section class="page-section">
