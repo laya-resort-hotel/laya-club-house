@@ -703,3 +703,199 @@
 .kpi-row-3.kpi-stack-layout {
   grid-template-columns: 1fr;
 }
+
+/* ── Digital Card Flip v2.2.5 ─────────────────────────────── */
+.digital-card-widget {
+  width: 100%;
+  max-width: 400px;
+  display: grid;
+  gap: 10px;
+}
+
+.card-flip-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-flip-hint {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.card-flip-btn {
+  border: 1px solid rgba(201,165,80,.28);
+  background: rgba(201,165,80,.12);
+  color: var(--gold-light);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+
+.card-flip-btn:hover {
+  background: rgba(201,165,80,.18);
+  border-color: rgba(201,165,80,.42);
+  transform: translateY(-1px);
+}
+
+.digital-card-flip {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1.586 / 1;
+  perspective: 1400px;
+  cursor: pointer;
+  outline: none;
+}
+
+.digital-card-flip:focus-visible {
+  border-radius: 24px;
+  box-shadow: 0 0 0 2px rgba(201,165,80,.65), 0 0 0 8px rgba(201,165,80,.12);
+}
+
+.digital-card-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .7s cubic-bezier(.2,.7,.2,1);
+}
+
+.digital-card-widget.is-flipped .digital-card-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.digital-card-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.digital-card-back {
+  transform: rotateY(180deg);
+}
+
+.digital-card-back,
+.digital-card-front {
+  margin: 0;
+}
+
+.digital-card-back {
+  grid-template-rows: auto 1fr auto;
+  gap: 14px;
+}
+
+.dc-back-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.dc-back-title {
+  margin: 2px 0 0;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.dc-back-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.dc-back-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.dc-back-row {
+  display: grid;
+  gap: 2px;
+}
+
+.dc-back-row strong {
+  font-size: 14px;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.dc-back-qr-wrap {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+  text-align: right;
+}
+
+.qr-box-large {
+  width: 108px;
+  height: 108px;
+  border-radius: 16px;
+}
+
+.dc-back-note {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.45;
+  max-width: 120px;
+  color: var(--card-muted, rgba(255,255,255,.75));
+}
+
+.dc-back-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.member-hero .digital-card-widget,
+.home-card-wrap .digital-card-widget,
+.card-tools-card .digital-card-widget {
+  max-width: 400px;
+}
+
+@media (max-width: 720px) {
+  .card-flip-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .digital-card-widget,
+  .digital-card-flip {
+    max-width: 100%;
+  }
+
+  .dc-back-title {
+    font-size: 16px;
+  }
+
+  .dc-back-body {
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+  }
+
+  .dc-back-row strong {
+    font-size: 12px;
+  }
+
+  .qr-box-large {
+    width: 84px;
+    height: 84px;
+  }
+
+  .dc-back-note {
+    max-width: 92px;
+    font-size: 9px;
+  }
+}
