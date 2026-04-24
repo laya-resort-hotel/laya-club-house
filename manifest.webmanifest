@@ -1,9 +1,0 @@
-{
-  "name": "LAYA Card & Member System",
-  "short_name": "LAYA Card",
-  "display": "standalone",
-  "start_url": "./login.html",
-  "background_color": "#10261e",
-  "theme_color": "#10261e",
-  "icons": []
-}
