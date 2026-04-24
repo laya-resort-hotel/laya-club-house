@@ -1335,3 +1335,465 @@
   .home-hero-dashboard .home-card-wrap { order: 2; }
   .home-hero-dashboard .home-kpi-row { order: 3; }
 }
+
+/* ============================================================
+   REDEEM — Luxury Rewards Layout v2.2.10
+   Adapted from the uploaded React RedeemPage concept
+   ============================================================ */
+.redeem-luxury-page {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 34px;
+  padding-bottom: 18px;
+}
+
+.redeem-orb {
+  position: fixed;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(.5px);
+}
+
+.redeem-orb-top {
+  top: -180px;
+  right: -160px;
+  width: 620px;
+  height: 620px;
+  background: radial-gradient(circle, rgba(30,70,35,.24) 0%, transparent 70%);
+}
+
+.redeem-orb-bottom {
+  bottom: -220px;
+  left: -150px;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(201,168,76,.08) 0%, transparent 70%);
+}
+
+.redeem-points-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 28px;
+  padding: 40px 48px;
+  border-radius: 24px;
+  border: 1px solid rgba(201,168,76,.25);
+  background: linear-gradient(135deg, rgba(20,40,22,.9) 0%, rgba(15,30,17,.96) 100%);
+  box-shadow: 0 0 60px rgba(201,168,76,.06), 0 20px 60px rgba(0,0,0,.34);
+}
+
+.redeem-grid-texture {
+  position: absolute;
+  inset: 0;
+  opacity: .035;
+  background-image: linear-gradient(rgba(201,168,76,1) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,1) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.redeem-points-main,
+.redeem-points-side {
+  position: relative;
+  z-index: 1;
+}
+
+.redeem-eyebrow {
+  margin: 0 0 12px;
+  font-size: 10px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--gold, #c9a84c);
+  font-weight: 700;
+}
+
+.redeem-points-main h2 {
+  margin: 0;
+  font-size: clamp(48px, 7vw, 80px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -.045em;
+  background: linear-gradient(135deg, #fff 0%, #c9a84c 65%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(201,168,76,.25));
+}
+
+.redeem-points-main p {
+  max-width: 540px;
+  margin: 18px 0 0;
+  color: #8ba386;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.redeem-points-side {
+  display: grid;
+  gap: 18px;
+  justify-items: end;
+  text-align: right;
+}
+
+.redeem-member-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(201,168,76,.25);
+  background: rgba(201,168,76,.1);
+  color: #d8be6d;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.redeem-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.redeem-hero-actions span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(201,168,76,.22);
+  background: rgba(255,255,255,.035);
+  color: #cabd9c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.redeem-luxury-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  gap: 32px;
+  align-items: start;
+}
+
+.redeem-section-head {
+  margin-bottom: 24px;
+}
+
+.redeem-section-head h2 {
+  margin: 0 0 6px;
+  color: #f6efe2;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -.03em;
+}
+
+.redeem-section-head p {
+  margin: 0;
+  color: #789071;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.redeem-luxury-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.redeem-luxury-card {
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(201,168,76,.12);
+  background: linear-gradient(135deg, rgba(18,36,20,.86) 0%, rgba(14,28,16,.92) 100%);
+  box-shadow: 0 4px 20px rgba(0,0,0,.22);
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, background .25s ease;
+}
+
+.redeem-luxury-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201,168,76,.38);
+  background: linear-gradient(135deg, rgba(25,50,28,.96) 0%, rgba(20,40,22,.98) 100%);
+  box-shadow: 0 20px 40px rgba(0,0,0,.38), 0 0 0 1px rgba(201,168,76,.12);
+}
+
+.redeem-luxury-media {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1.52 / 1;
+  background: rgba(255,255,255,.04);
+}
+
+.redeem-luxury-image,
+.redeem-luxury-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.redeem-luxury-image img {
+  object-fit: cover;
+  filter: brightness(.75) saturate(.9);
+  transition: transform .45s ease;
+}
+
+.redeem-luxury-card:hover .redeem-luxury-image img {
+  transform: scale(1.06);
+}
+
+.redeem-luxury-image-empty {
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at top left, rgba(201,168,76,.16), transparent 54%), rgba(255,255,255,.04);
+}
+
+.redeem-luxury-image-empty span {
+  font-size: 38px;
+}
+
+.redeem-luxury-media-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 38%, rgba(10,20,12,.88) 100%);
+}
+
+.redeem-category-pill,
+.redeem-stock-pill {
+  position: absolute;
+  top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100% - 24px);
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(10,15,10,.72);
+  border: 1px solid color-mix(in srgb, var(--reward-accent, #c9a84c) 38%, transparent);
+  backdrop-filter: blur(10px);
+  color: var(--reward-accent, #c9a84c);
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.redeem-category-pill { left: 12px; }
+.redeem-stock-pill { right: 12px; color: #9eb09d; border-color: rgba(255,255,255,.12); }
+
+.redeem-luxury-body {
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.redeem-luxury-body h3 {
+  margin: 0 0 6px;
+  color: #f2eadb;
+  font-size: 15px;
+  line-height: 1.3;
+  letter-spacing: -.02em;
+}
+
+.redeem-luxury-body p {
+  margin: 0;
+  min-height: 36px;
+  color: #6f896d;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.redeem-luxury-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.redeem-luxury-foot strong {
+  color: #d7b95b;
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.redeem-luxury-foot strong span {
+  margin-left: 4px;
+  color: #8c7650;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.redeem-luxury-btn {
+  min-height: 34px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #c9a84c 0%, #a8863a 100%);
+  color: #0a0f0a;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 12px rgba(201,168,76,.25);
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+
+.redeem-luxury-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(201,168,76,.38);
+}
+
+.redeem-luxury-btn:disabled {
+  cursor: not-allowed;
+  opacity: .52;
+  background: rgba(30,50,32,.58);
+  color: #66816b;
+  border: 1px solid rgba(201,168,76,.14);
+  box-shadow: none;
+}
+
+.redeem-history-column {
+  position: sticky;
+  top: 96px;
+}
+
+.redeem-history-panel {
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(201,168,76,.12);
+  background: linear-gradient(135deg, rgba(18,36,20,.86) 0%, rgba(14,28,16,.92) 100%);
+}
+
+.redeem-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(201,168,76,.08);
+}
+
+.redeem-history-item:last-child { border-bottom: none; }
+
+.redeem-history-item strong {
+  color: #e7ddca;
+  font-size: 14px;
+}
+
+.redeem-history-item p {
+  margin: 4px 0 0;
+  color: #6f896d;
+  font-size: 11px;
+}
+
+.redeem-history-item span {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(106,171,138,.25);
+  background: rgba(106,171,138,.1);
+  color: #79bd98;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.redeem-empty-history,
+.redeem-empty-card {
+  text-align: center;
+  padding: 42px 28px;
+  color: #8ba386;
+}
+
+.redeem-empty-history div,
+.redeem-empty-card > span {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(201,168,76,.14);
+  background: rgba(201,168,76,.05);
+  font-size: 26px;
+}
+
+.redeem-empty-history strong,
+.redeem-empty-card strong {
+  display: block;
+  color: #c9bda9;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.redeem-empty-history p,
+.redeem-empty-card p,
+.redeem-empty-card small {
+  margin: 0;
+  color: #688262;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.redeem-stats-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.redeem-stats-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(201,168,76,.08);
+  background: rgba(18,36,20,.54);
+}
+
+.redeem-stats-list span {
+  color: #6f896d;
+  font-size: 12px;
+}
+
+.redeem-stats-list strong {
+  color: #d0b35d;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+@media (max-width: 1180px) {
+  .redeem-luxury-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .redeem-luxury-layout { grid-template-columns: minmax(0, 1fr) 340px; }
+}
+
+@media (max-width: 900px) {
+  .redeem-points-hero {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 28px;
+  }
+  .redeem-points-side {
+    justify-items: start;
+    text-align: left;
+  }
+  .redeem-hero-actions { justify-content: flex-start; }
+  .redeem-luxury-layout { grid-template-columns: 1fr; }
+  .redeem-history-column { position: static; }
+}
+
+@media (max-width: 620px) {
+  .redeem-luxury-page { gap: 24px; }
+  .redeem-points-hero { padding: 24px 20px; border-radius: 22px; }
+  .redeem-points-main h2 { font-size: 48px; }
+  .redeem-hero-actions span { flex: 1 1 100%; }
+  .redeem-luxury-grid { grid-template-columns: 1fr; }
+  .redeem-luxury-media { aspect-ratio: 1.7 / 1; }
+}
