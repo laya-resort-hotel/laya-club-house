@@ -4,8 +4,8 @@ import { createQrSvgDataUrl } from '../utils/qrcode.js';
 const FITNESS_GUEST_FRONT_IMAGE = './assets/cards/fitness-guest-front.png';
 const FITNESS_GUEST_BACK_IMAGE = './assets/cards/fitness-guest-back.png';
 
-export function getQrImageUrl(value = '', size = 160) {
-  return createQrSvgDataUrl(value, size);
+export function getQrImageUrl(value = '', size = 160, options = {}) {
+  return createQrSvgDataUrl(value, size, options);
 }
 
 function resolveTheme(card = {}, user = {}, theme = null) {
@@ -173,10 +173,11 @@ export function renderDigitalCard(user = {}, card = null, theme = null) {
   const cardNumber = card?.cardNumber || `${String(user.cardType || 'CARD').slice(0, 2).toUpperCase()}-${String(user.uid || '000001').slice(-6).toUpperCase()}`;
   const qrValue = card?.qrValue || `LAYA-${cardNumber}`;
   const qrImage = getQrImageUrl(qrValue, 240);
+  const fitnessQrImage = getQrImageUrl(qrValue, 640, { margin: 0, ecc: 'H', dark: '#111111', light: '#ffffff' });
   const themeConfig = resolveTheme(card, user, theme);
 
   if (isFitnessGuestCard(user, card)) {
-    return renderFitnessGuestCard({ cardNumber, qrImage });
+    return renderFitnessGuestCard({ cardNumber, qrImage: fitnessQrImage });
   }
 
   return `

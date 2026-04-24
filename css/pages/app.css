@@ -1062,3 +1062,37 @@
     max-width: min(82vw, 320px);
   }
 }
+
+/* ── Fitness Guest QR Full-Bleed Tune v2.2.8 ──────────────── */
+.fitness-qr-slot {
+  left: 26.24%;
+  top: 29.01%;
+  width: 47.58%;
+  height: 32.11%;
+}
+
+.fitness-qr-box,
+.fitness-qr-box.qr-box,
+.fitness-qr-box.qr-box-image {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  min-width: 100%;
+  min-height: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.fitness-qr-box img {
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  display: block;
+  object-fit: fill;
+}
