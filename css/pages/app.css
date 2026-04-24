@@ -1189,3 +1189,149 @@
   font-size: 13px;
   line-height: 1.55;
 }
+
+/* ── Home Desktop Compact Dashboard Layout v2.3.1 ─────────── */
+.home-hero-main {
+  display: contents;
+}
+
+.home-hero-dashboard .home-greeting { order: 1; }
+.home-hero-dashboard .home-card-wrap { order: 2; }
+.home-hero-dashboard .home-kpi-row { order: 3; }
+
+@supports selector(:has(*)) {
+  @media (min-width: 900px) {
+    .app-shell:has(.home-hero-dashboard) {
+      max-width: 1280px;
+      padding-top: 18px;
+    }
+
+    .app-shell:has(.home-hero-dashboard) .topbar-status-row {
+      padding: 0;
+      margin-bottom: -6px;
+    }
+
+    .app-shell:has(.home-hero-dashboard) .topbar {
+      margin: -18px -32px 12px;
+      padding: 16px 32px 14px;
+    }
+
+    .app-shell:has(.home-hero-dashboard) .page-root {
+      gap: 18px;
+    }
+  }
+}
+
+@media (min-width: 900px) {
+  .home-hero.home-hero-dashboard {
+    grid-template-columns: minmax(0, 1fr) minmax(310px, 365px) !important;
+    gap: 28px !important;
+    align-items: center;
+    padding: 28px;
+    border: 1.5px solid rgba(201,165,80,.16);
+    border-radius: 30px;
+    background:
+      radial-gradient(circle at 8% 8%, rgba(201,165,80,.12), transparent 30%),
+      radial-gradient(circle at 86% 16%, rgba(76,167,121,.09), transparent 32%),
+      linear-gradient(145deg, rgba(8,24,19,.96), rgba(11,35,28,.72));
+    box-shadow: 0 26px 70px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+
+  .home-hero-dashboard .home-hero-main {
+    display: grid;
+    gap: 24px;
+    align-content: center;
+    min-width: 0;
+  }
+
+  .home-hero-dashboard .home-greeting {
+    order: initial;
+    gap: 8px;
+  }
+
+  .home-hero-dashboard .home-greeting h2 {
+    font-size: clamp(38px, 4vw, 58px) !important;
+    line-height: .98;
+    letter-spacing: -.04em;
+  }
+
+  .home-hero-dashboard .home-greeting .muted {
+    font-size: 14px;
+    max-width: 560px;
+  }
+
+  .home-hero-dashboard .home-kpi-row {
+    order: initial;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .home-hero-dashboard .kpi-tile {
+    min-height: 116px;
+    padding: 18px;
+  }
+
+  .home-hero-dashboard .home-card-wrap {
+    order: initial;
+    justify-content: center !important;
+    align-self: center;
+  }
+
+  .home-hero-dashboard .home-card-wrap .digital-card-widget.is-fitness-card,
+  .home-hero-dashboard .home-card-wrap .digital-card-widget.is-fitness-card .digital-card-flip {
+    max-width: 330px;
+  }
+
+  .home-hero-dashboard + .page-section {
+    margin-top: 2px;
+  }
+
+  .home-hero-dashboard + .page-section .section-head,
+  .home-hero-dashboard ~ .page-grid-2 .section-head {
+    margin-bottom: 10px;
+  }
+
+  .home-hero-dashboard + .page-section .quick-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .home-hero-dashboard + .page-section .quick-card {
+    min-height: 104px;
+  }
+
+  .home-hero-dashboard ~ .page-grid-2 {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .home-hero-dashboard ~ .page-grid-2 .empty-state {
+    min-height: 150px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .home-hero.home-hero-dashboard {
+    grid-template-columns: minmax(0, 1fr) minmax(330px, 390px) !important;
+    padding: 32px 34px;
+  }
+
+  .home-hero-dashboard .home-card-wrap .digital-card-widget.is-fitness-card,
+  .home-hero-dashboard .home-card-wrap .digital-card-widget.is-fitness-card .digital-card-flip {
+    max-width: 350px;
+  }
+
+  .home-hero-dashboard + .page-section .quick-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 899px) {
+  .home-hero-dashboard .home-hero-main {
+    display: contents;
+  }
+
+  .home-hero-dashboard .home-greeting { order: 1; }
+  .home-hero-dashboard .home-card-wrap { order: 2; }
+  .home-hero-dashboard .home-kpi-row { order: 3; }
+}

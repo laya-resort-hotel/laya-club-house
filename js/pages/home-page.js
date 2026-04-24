@@ -102,45 +102,46 @@ export function renderHomePage(user, snapshot = {}) {
   const unread = snapshot.unreadNotifications || 0;
 
   return `
-    <!-- Welcome + Digital Card row -->
-    <section class="home-hero">
-      <div class="home-greeting">
-        <p class="eyebrow">${greeting}</p>
-        <h2>${firstName} 👋</h2>
-        <p class="muted">${user.stayStart && user.stayEnd ? `Stay ${user.stayStart} → ${user.stayEnd}` : 'Welcome back to LAYA Club House'}${user.roomNo ? ` · Room ${user.roomNo}` : ''}</p>
+    <!-- Welcome + Digital Card + KPI dashboard -->
+    <section class="home-hero home-hero-dashboard">
+      <div class="home-hero-main">
+        <div class="home-greeting">
+          <p class="eyebrow">${greeting}</p>
+          <h2>${firstName} 👋</h2>
+          <p class="muted">${user.stayStart && user.stayEnd ? `Stay ${user.stayStart} → ${user.stayEnd}` : 'Welcome back to LAYA Club House'}${user.roomNo ? ` · Room ${user.roomNo}` : ''}</p>
+        </div>
+
+        <section class="kpi-row-3 home-kpi-row" aria-label="Account summary">
+          <article class="kpi-tile kpi-tile-gold">
+            <div class="kpi-tile-icon">💰</div>
+            <div class="kpi-tile-body">
+              <span class="kpi-label">Balance</span>
+              <strong>${balance}</strong>
+              <span class="muted">Available to spend</span>
+            </div>
+          </article>
+          <article class="kpi-tile">
+            <div class="kpi-tile-icon">⭐</div>
+            <div class="kpi-tile-body">
+              <span class="kpi-label">Reward points</span>
+              <strong>${pointBalance}</strong>
+              <span class="muted">Ready to redeem</span>
+            </div>
+          </article>
+          <article class="kpi-tile ${unread > 0 ? 'kpi-tile-alert' : ''}">
+            <div class="kpi-tile-icon">🔔</div>
+            <div class="kpi-tile-body">
+              <span class="kpi-label">Notifications</span>
+              <strong>${unread}</strong>
+              <span class="muted">${unread > 0 ? 'Unread alerts' : 'All caught up'}</span>
+            </div>
+          </article>
+        </section>
       </div>
 
       <div class="home-card-wrap">
         ${renderDigitalCard(user, snapshot.card, snapshot.cardTheme)}
       </div>
-    </section>
-
-    <!-- KPI Summary -->
-    <section class="kpi-row-3">
-      <article class="kpi-tile kpi-tile-gold">
-        <div class="kpi-tile-icon">💰</div>
-        <div class="kpi-tile-body">
-          <span class="kpi-label">Balance</span>
-          <strong>${balance}</strong>
-          <span class="muted">Available to spend</span>
-        </div>
-      </article>
-      <article class="kpi-tile">
-        <div class="kpi-tile-icon">⭐</div>
-        <div class="kpi-tile-body">
-          <span class="kpi-label">Reward points</span>
-          <strong>${pointBalance}</strong>
-          <span class="muted">Ready to redeem</span>
-        </div>
-      </article>
-      <article class="kpi-tile ${unread > 0 ? 'kpi-tile-alert' : ''}">
-        <div class="kpi-tile-icon">🔔</div>
-        <div class="kpi-tile-body">
-          <span class="kpi-label">Notifications</span>
-          <strong>${unread}</strong>
-          <span class="muted">${unread > 0 ? 'Unread alerts' : 'All caught up'}</span>
-        </div>
-      </article>
     </section>
 
     <!-- Quick services -->
