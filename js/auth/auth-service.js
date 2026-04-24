@@ -158,13 +158,13 @@ export async function loginGuestPortal({ roomNo, stayStart, stayEnd, guestName =
 }
 
 
-export async function signUpMember({ firstName, lastName = '', phone = '', employeeId = '', email = '', password, language = 'en' }) {
+export async function signUpMember({ firstName, lastName = '', phone = '', employeeId = '', password, language = 'en' }) {
   assertProductionReady('Sign up');
   const safeFirstName = String(firstName || '').trim();
   const safeLastName = String(lastName || '').trim();
   const safeEmployeeId = normalizeEmployeeId(employeeId);
-  const safePublicEmail = String(email || '').trim().toLowerCase();
-  const authEmail = safePublicEmail || employeeIdToAuthEmail(safeEmployeeId);
+  const safePublicEmail = '';
+  const authEmail = safeEmployeeId ? employeeIdToAuthEmail(safeEmployeeId) : safePublicEmail;
   const safeDisplayName = [safeFirstName, safeLastName].filter(Boolean).join(' ').trim() || safeEmployeeId || authEmail?.split('@')[0] || 'Member';
   const credential = await createUserWithEmailAndPassword(auth, authEmail, String(password || ''));
   await updateProfile(credential.user, { displayName: safeDisplayName }).catch(() => null);

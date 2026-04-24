@@ -72,3 +72,14 @@ firebase deploy --only firestore:rules,firestore:indexes,storage,functions
 - `docs/UAT_SIGNOFF_TEMPLATE.md`
 - `ops/staging-smoke.sh`
 - `ops/staging-smoke.ps1`
+
+
+## v2.2.4 employee ID login fix
+- Employee sign-up now always creates the Firebase Auth login using the internal employee-based email when an Employee ID is provided.
+- The visible email field is stored as contact information only for employee registrations.
+
+
+## v2.2.4 employee-only signup
+- Removed the email field from self-registration UI.
+- Self-registration now uses Employee ID + password only.
+- Firebase Auth login is still created internally from the Employee ID.

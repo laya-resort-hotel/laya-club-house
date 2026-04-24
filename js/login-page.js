@@ -16,7 +16,6 @@ const signupFirstNameInput = qs('#signup-first-name');
 const signupLastNameInput = qs('#signup-last-name');
 const signupPhoneInput = qs('#signup-phone');
 const signupEmployeeIdInput = qs('#signup-employee-id');
-const signupEmailInput = qs('#signup-email');
 const signupPasswordInput = qs('#signup-password');
 const signupConfirmPasswordInput = qs('#signup-confirm-password');
 const clearCacheLink = qs('#clear-cache-link');
@@ -123,7 +122,6 @@ signupForm?.addEventListener('submit', async (event) => {
       lastName: signupLastNameInput?.value,
       phone: signupPhoneInput?.value,
       employeeId: signupEmployeeIdInput?.value,
-      email: signupEmailInput?.value,
       password: signupPasswordInput?.value,
       confirmPassword: signupConfirmPasswordInput?.value
     });
