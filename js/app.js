@@ -111,7 +111,126 @@ async function bindCommonActions(){ bindRouteButtons(bottomNav); bindRouteButton
   qsa('[data-card-flip-stage]', pageRoot).forEach((stage)=>{ stage.addEventListener('click', ()=>toggleCardFlip(stage.closest('[data-card-flip-widget]'))); stage.addEventListener('keydown', (event)=>{ if(event.key==='Enter' || event.key===' '){ event.preventDefault(); toggleCardFlip(stage.closest('[data-card-flip-widget]')); } }); });
   qsa('.setting-item', pageRoot).forEach((row)=>{ row.addEventListener('click', async ()=>{ const text=row.textContent.trim().toLowerCase(); if(text.includes('logout')){ await logout(); location.href='./login.html'; } if(text.includes('clear cache')){ await clearAppCache(); showToast('Cache cleared', 'Reload the app to fetch the latest files.'); } if(text.includes('install app')){ showToast('Install app', 'Use the browser install prompt for this device.'); } if(text.includes('enable push')){ const result=await requestPushPermissionAndRegister(appState.user).catch((error)=>({ ok:false, reason:error?.message || 'Push setup failed.' })); appState.notificationState.pushEnabled=!!result?.ok; appState.notificationState.pushReason=result?.ok ? 'Push alerts connected' : (result?.reason || 'Push setup failed.'); showToast(result?.ok ? 'Push alerts enabled' : 'Push setup blocked', result?.ok ? 'This device is now registered for alerts.' : appState.notificationState.pushReason); if(appState.currentRoute==='settings') await mount(); } if(text.includes('check version')){ showToast('Current version', `App version ${appState.appVersion}`); } }); }); qsa('[data-reward-id]', pageRoot).forEach((button)=>{ button.addEventListener('click', async ()=>{ try{ const reward={ id:button.dataset.rewardId, title:button.dataset.rewardTitle, pointsRequired:Number(button.dataset.rewardPoints || 0)}; const result=await requestRewardRedemption(appState.user, reward); showToast('Reward ready', result?.rewardCode || 'Reward request created successfully.'); await mount(); }catch(error){ showToast('Redeem failed', error?.message || 'Unable to create redemption request.'); } }); }); }
 async function startScanner(codeInput){ const video=qs('#scanner-video', pageRoot); const reader=qs('#scanner-reader', pageRoot); const statusNode=qs('#scanner-status', pageRoot); if(!video || !codeInput) return; try{ const support=scannerCapabilities(); const result=await startQrScanner({ videoEl: video, readerEl: reader, statusEl: statusNode, onCode: async (found, engine)=>{ codeInput.value=found; if(statusNode) statusNode.textContent=`Scanned via ${engine}: ${found}`; await reportOperationalEvent('scanner', 'scan_success', { engine, route:'scan' }); } }); if(statusNode){ const supportHint=support.barcodeDetector ? 'Native detector ready.' : 'Using fallback scanner engine.'; statusNode.textContent=`Scanner started (${result?.mode || 'camera'}). ${supportHint}`; } }catch(error){ if(statusNode) statusNode.textContent=handleUiError('scanner_start', error, { route:'scan' }); showToast('Scanner unavailable', error?.message || 'Unable to start scanner.'); } }
-async function bindScanActions(snapshot){ const modeInput=qs('#scan-mode', pageRoot); const codeInput=qs('#scan-code', pageRoot); const amountInput=qs('#scan-amount', pageRoot); const pointsInput=qs('#scan-points', pageRoot); const noteInput=qs('#scan-note', pageRoot); const locationInput=qs('#scan-location', pageRoot); const form=qs('#scan-form', pageRoot); const lookupBtn=qs('#lookup-card-btn', pageRoot); const startScanBtn=qs('#start-scan-btn', pageRoot); const stopScanBtn=qs('#stop-scan-btn', pageRoot); qsa('[data-mode]', pageRoot).forEach((button)=>button.addEventListener('click', ()=>{ qsa('[data-mode]', pageRoot).forEach((node)=>node.classList.remove('is-active')); button.classList.add('is-active'); if(modeInput) modeInput.value=button.dataset.mode; })); startScanBtn?.addEventListener('click', async ()=>{ await startScanner(codeInput); }); stopScanBtn?.addEventListener('click', async ()=>{ await stopQrScanner(); const statusNode=qs('#scanner-status', pageRoot); if(statusNode) statusNode.textContent='Scanner stopped.'; }); lookupBtn?.addEventListener('click', async ()=>{ try{ setButtonBusy(lookupBtn, true, { busyText:'Looking up...' }); const preview=await findCardByCode(codeInput?.value || ''); if(!preview){ showToast('Card not found', 'No card or QR value matched that code.'); return; } appState.lastSnapshot={ ...(snapshot||{}), preview }; pageRoot.innerHTML=renderRoute('scan', appState.user, appState.lastSnapshot, appState); await bindCommonActions(); await bindScanActions(appState.lastSnapshot); }catch(error){ showToast('Lookup failed', handleUiError('scan_lookup', error, { code:codeInput?.value || '' })); } finally { setButtonBusy(lookupBtn, false); } }); form?.addEventListener('submit', async (event)=>{ event.preventDefault(); const submitButton=form?.querySelector('button[type="submit"]'); try{ validateScanPayload({ mode: modeInput?.value || 'topup', code: codeInput?.value || '', amount: amountInput?.value, pointAmount: pointsInput?.value, location: locationInput?.value || 'room_front', note: noteInput?.value || '' }); const preview=appState.lastSnapshot?.preview || null; await runBusyAction({ form, button: submitButton, busyText:'Submitting...', action: async ()=>{ await createScanRequest(appState.user, { mode: modeInput?.value || 'topup', code: codeInput?.value || '', amount:Number(amountInput?.value || 0), pointAmount:Number(pointsInput?.value || 0), note: noteInput?.value || '', location: locationInput?.value || 'room_front', roomNo: preview?.roomNo || null, targetCardId: preview?.cardId || null, targetUserId: preview?.userId || null, targetDisplayName: preview?.displayName || '' }); await reportOperationalEvent('scan_request', 'created', { mode: modeInput?.value || 'topup' }); } }); showToast('Scan request created', 'Use Process to apply it via Cloud Functions.'); await mount(); }catch(error){ showToast('Scan request failed', handleUiError('scan_request_create', error, { mode: modeInput?.value || 'topup' })); } }); qsa('[data-scan-action]', pageRoot).forEach((button)=>button.addEventListener('click', async ()=>{ try{ const action=button.dataset.scanAction; await updateScanRequestStatus(button.dataset.scanId, action, action==='reject' ? 'Rejected from UI' : 'Processed from UI'); await reportOperationalEvent('scan_request', action, { scanRequestId:button.dataset.scanId }); await mount(); }catch(error){ showToast('Scan update failed', handleUiError('scan_request_update', error, { scanRequestId:button.dataset.scanId, action:button.dataset.scanAction })); } })); }
+async function bindScanActions(snapshot){
+  const modeInput=qs('#scan-mode', pageRoot);
+  const codeInput=qs('#scan-code', pageRoot);
+  const amountInput=qs('#scan-amount', pageRoot);
+  const frontdeskAmountInput=qs('#scan-amount-frontdesk', pageRoot);
+  const pointsInput=qs('#scan-points', pageRoot);
+  const noteInput=qs('#scan-note', pageRoot);
+  const locationInput=qs('#scan-location', pageRoot);
+  const form=qs('#scan-form', pageRoot);
+  const lookupBtn=qs('#lookup-card-btn', pageRoot);
+  const startScanBtn=qs('#start-scan-btn', pageRoot);
+  const stopScanBtn=qs('#stop-scan-btn', pageRoot);
+  const previewOpenBtn=qs('#scan-preview-open-btn', pageRoot);
+
+  const stationMeta={
+    fnb:{ title:'F&B Station', subtitle:'Deductions & reward points', defaultMode:'deduct' },
+    fitness:{ title:'Fitness Station', subtitle:'Towel management', defaultMode:'towel_borrow' },
+    frontdesk:{ title:'Front Desk Station', subtitle:'Top-up, balance, and membership lookup', defaultMode:'topup' }
+  };
+
+  const setMode=(mode)=>{
+    if(modeInput) modeInput.value=mode;
+    qsa('[data-mode]', pageRoot).forEach((node)=>node.classList.toggle('is-active', node.dataset.mode===mode));
+    const confirm=qs('.scan-v2-confirm', pageRoot);
+    if(confirm){
+      const labels={ topup:'Confirm Top-up', deduct:'Confirm Deduction', earn_point:'Confirm Points Award', towel_borrow:'Confirm Borrow', towel_return:'Confirm Return', balance_check:'Check Balance', membership_lookup:'Confirm Lookup', redeem_use:'Confirm Reward Use' };
+      confirm.textContent=labels[mode] || 'Confirm Transaction';
+    }
+  };
+
+  const setStation=(station)=>{
+    const meta=stationMeta[station] || stationMeta.fnb;
+    qsa('[data-scan-station]', pageRoot).forEach((node)=>node.classList.toggle('is-active', node.dataset.scanStation===station));
+    qsa('[data-station-panel]', pageRoot).forEach((panel)=>{
+      const active=panel.dataset.stationPanel===station;
+      panel.classList.toggle('is-active', active);
+      panel.hidden=!active;
+    });
+    const title=qs('#scan-station-title', pageRoot);
+    const subtitle=qs('#scan-station-subtitle', pageRoot);
+    if(title) title.textContent=meta.title;
+    if(subtitle) subtitle.textContent=meta.subtitle;
+    setMode(meta.defaultMode);
+  };
+
+  qsa('[data-scan-station]', pageRoot).forEach((button)=>button.addEventListener('click', ()=>setStation(button.dataset.scanStation || 'fnb')));
+  qsa('[data-mode]', pageRoot).forEach((button)=>button.addEventListener('click', ()=>setMode(button.dataset.mode || 'topup')));
+
+  qsa('[data-location]', pageRoot).forEach((button)=>button.addEventListener('click', ()=>{
+    qsa('[data-location]', pageRoot).forEach((node)=>node.classList.remove('is-active'));
+    button.classList.add('is-active');
+    if(locationInput) locationInput.value=button.dataset.location || 'room_front';
+    const label=qs('#scan-location-label', pageRoot);
+    if(label) label.textContent=button.textContent.trim();
+  }));
+
+  qsa('[data-quick-amount]', pageRoot).forEach((button)=>button.addEventListener('click', ()=>{
+    if(frontdeskAmountInput) frontdeskAmountInput.value=button.dataset.quickAmount || '';
+    if(amountInput) amountInput.value=button.dataset.quickAmount || '';
+    qsa('[data-quick-amount]', pageRoot).forEach((node)=>node.classList.remove('is-active'));
+    button.classList.add('is-active');
+  }));
+
+  frontdeskAmountInput?.addEventListener('input', ()=>{ if(amountInput) amountInput.value=frontdeskAmountInput.value; });
+  amountInput?.addEventListener('input', ()=>{ if(frontdeskAmountInput && (modeInput?.value==='topup')) frontdeskAmountInput.value=amountInput.value; });
+
+  const openScanner=async()=>{ await startScanner(codeInput); };
+  startScanBtn?.addEventListener('click', openScanner);
+  previewOpenBtn?.addEventListener('click', openScanner);
+  stopScanBtn?.addEventListener('click', async ()=>{ await stopQrScanner(); const statusNode=qs('#scanner-status', pageRoot); if(statusNode) statusNode.textContent='Scanner stopped.'; });
+
+  lookupBtn?.addEventListener('click', async ()=>{
+    try{
+      setButtonBusy(lookupBtn, true, { busyText:'Looking up...' });
+      const preview=await findCardByCode(codeInput?.value || '');
+      if(!preview){ showToast('Card not found', 'No card or QR value matched that code.'); return; }
+      appState.lastSnapshot={ ...(snapshot||{}), preview };
+      pageRoot.innerHTML=renderRoute('scan', appState.user, appState.lastSnapshot, appState);
+      await bindCommonActions();
+      await bindScanActions(appState.lastSnapshot);
+    }catch(error){
+      showToast('Lookup failed', handleUiError('scan_lookup', error, { code:codeInput?.value || '' }));
+    } finally {
+      setButtonBusy(lookupBtn, false);
+    }
+  });
+
+  form?.addEventListener('submit', async (event)=>{
+    event.preventDefault();
+    const submitButton=form?.querySelector('button[type="submit"]');
+    try{
+      const mode=modeInput?.value || 'topup';
+      const effectiveAmount = mode==='topup' ? (frontdeskAmountInput?.value || amountInput?.value || '') : (amountInput?.value || '');
+      const effectivePoints = pointsInput?.value || '';
+      validateScanPayload({ mode, code: codeInput?.value || '', amount: effectiveAmount, pointAmount: effectivePoints, location: locationInput?.value || 'room_front', note: noteInput?.value || '' });
+      const preview=appState.lastSnapshot?.preview || null;
+      await runBusyAction({ form, button: submitButton, busyText:'Submitting...', action: async ()=>{
+        await createScanRequest(appState.user, { mode, code: codeInput?.value || '', amount:Number(effectiveAmount || 0), pointAmount:Number(effectivePoints || 0), note: noteInput?.value || '', location: locationInput?.value || 'room_front', roomNo: preview?.roomNo || null, targetCardId: preview?.cardId || null, targetUserId: preview?.userId || null, targetDisplayName: preview?.displayName || '' });
+        await reportOperationalEvent('scan_request', 'created', { mode });
+      } });
+      showToast('Transaction recorded', 'Scan request created. Use Process to apply it via Cloud Functions.');
+      await mount();
+    }catch(error){
+      showToast('Scan request failed', handleUiError('scan_request_create', error, { mode:modeInput?.value || 'topup' }));
+    }
+  });
+
+  qsa('[data-scan-action]', pageRoot).forEach((button)=>button.addEventListener('click', async ()=>{
+    try{
+      const action=button.dataset.scanAction;
+      await updateScanRequestStatus(button.dataset.scanId, action, action==='reject' ? 'Rejected from UI' : 'Processed from UI');
+      await reportOperationalEvent('scan_request', action, { scanRequestId:button.dataset.scanId });
+      await mount();
+    }catch(error){
+      showToast('Scan update failed', handleUiError('scan_request_update', error, { scanRequestId:button.dataset.scanId, action:button.dataset.scanAction }));
+    }
+  }));
+
+  setStation('fnb');
+}
 async function bindAdminActions(){
   qsa('[data-scan-action]', pageRoot).forEach((button)=>button.addEventListener('click', async ()=>{
     try{
