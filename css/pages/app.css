@@ -79,9 +79,8 @@
   transition: transform .2s, box-shadow .2s;
   /* Credit card aspect ratio (ISO/IEC 7810 ID-1 = 1.586:1) */
   width: 100%;
-  max-width: 440px;
+  max-width: 400px;
   aspect-ratio: 1.586 / 1;
-  min-height: 240px;
   margin: 0;
 }
 .digital-card.is-centered { margin: 0 auto; }
@@ -663,8 +662,8 @@
 
 @media (min-width: 900px) {
   .member-hero {
-    grid-template-columns: 440px 1fr;
-    gap: 28px;
+    grid-template-columns: 400px 1fr;
+    gap: 30px;
   }
   .member-hero .home-card-wrap { justify-content: flex-start; }
 }
@@ -675,20 +674,23 @@
   justify-content: center;
 }
 @media (min-width: 900px) {
-  .home-hero { grid-template-columns: 1fr 440px !important; }
+  .home-hero { grid-template-columns: 1fr 400px !important; gap: 32px !important; }
   .home-hero .home-card-wrap { justify-content: flex-end; }
+  .home-hero .greeting-h, .home-hero .home-greeting h2 { font-size: 36px !important; }
 }
 
-/* Typography ใน digital card ให้ fit พื้นที่ */
-.digital-card .dc-name { font-size: 20px; margin-top: 1px; }
-.digital-card .dc-eyebrow { font-size: 9px; }
+/* Typography ใน digital card ให้ fit aspect ratio 1.586:1 */
+.digital-card { padding: 18px 20px; gap: 8px; }
+.digital-card .dc-name { font-size: 18px; margin-top: 2px; line-height: 1.15; }
+.digital-card .dc-eyebrow { font-size: 9px; letter-spacing: .16em; }
 .digital-card .dc-role { font-size: 11px; margin-top: 2px; }
-.digital-card .dc-number { font-size: 16px; }
-.digital-card .dc-logo-pill { padding: 5px 12px; font-size: 10px; }
-.digital-card .dc-chip { width: 42px; height: 32px; }
-.digital-card .qr-box { width: 68px; height: 68px; padding: 4px; }
-.digital-card .dc-qr-value { font-size: 10px; }
+.digital-card .dc-number { font-size: 14px; letter-spacing: .08em; }
+.digital-card .dc-logo-pill { padding: 4px 10px; font-size: 9px; letter-spacing: .14em; }
+.digital-card .dc-chip { width: 38px; height: 28px; }
+.digital-card .qr-box { width: 58px; height: 58px; padding: 4px; border-radius: 9px; }
+.digital-card .dc-qr-value { font-size: 9px; }
 .digital-card .dc-label { font-size: 9px; }
+.digital-card .dc-bottom { gap: 10px; align-items: flex-end; }
 
 @media (max-width: 480px) {
   .digital-card { padding: 16px 18px; min-height: 210px; }
