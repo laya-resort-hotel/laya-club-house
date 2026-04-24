@@ -899,3 +899,98 @@
     font-size: 9px;
   }
 }
+
+/* ── Fitness Guest Custom Card Art v2.2.6 ─────────────────── */
+.digital-card-widget.is-fitness-card {
+  max-width: 340px;
+}
+
+.digital-card-widget.is-fitness-card .digital-card-flip {
+  max-width: 340px;
+  aspect-ratio: 1365 / 2048;
+}
+
+.digital-card-widget.is-fitness-card .digital-card-face {
+  padding: 0;
+  border-radius: 40px;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: 0 24px 60px rgba(0,0,0,.38);
+}
+
+.fitness-card-image-shell {
+  position: absolute;
+  inset: 0;
+}
+
+.fitness-card-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.fitness-qr-slot {
+  position: absolute;
+  left: 26.2%;
+  top: 29%;
+  width: 47.6%;
+  height: 32.1%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fitness-qr-box {
+  width: 86%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  padding: 0;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.fitness-qr-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.home-card-wrap .digital-card-widget.is-fitness-card,
+.member-hero .digital-card-widget.is-fitness-card,
+.card-tools-card .digital-card-widget.is-fitness-card {
+  max-width: 340px;
+}
+
+@media (max-width: 900px) {
+  .digital-card-widget.is-fitness-card,
+  .home-card-wrap .digital-card-widget.is-fitness-card,
+  .member-hero .digital-card-widget.is-fitness-card,
+  .card-tools-card .digital-card-widget.is-fitness-card {
+    max-width: 300px;
+  }
+
+  .digital-card-widget.is-fitness-card .digital-card-flip {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 540px) {
+  .digital-card-widget.is-fitness-card,
+  .home-card-wrap .digital-card-widget.is-fitness-card,
+  .member-hero .digital-card-widget.is-fitness-card,
+  .card-tools-card .digital-card-widget.is-fitness-card {
+    max-width: min(82vw, 320px);
+  }
+
+  .digital-card-widget.is-fitness-card .digital-card-flip {
+    max-width: min(82vw, 320px);
+  }
+
+  .digital-card-widget.is-fitness-card .digital-card-face {
+    border-radius: 32px;
+  }
+}
