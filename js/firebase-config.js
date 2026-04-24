@@ -2,13 +2,13 @@ const APP_VERSION = '2.0.0';
 const PUBLIC_VAPID_KEY = '';
 
 export const firebaseWebConfig = {
-  apiKey: "AIzaSyDReH8ZE8BLdSSEKoxAL4nppZOd6kO00rA",
-  authDomain: "service-c93f2.firebaseapp.com",
-  projectId: "service-c93f2",
-  storageBucket: "service-c93f2.firebasestorage.app",
-  messagingSenderId: "1011741219243",
-  appId: "1:1011741219243:web:0bbaa94adcb97723efdaee",
-  measurementId: "G-L0X403JZ5N"
+  apiKey: "AIzaSyDO1nqHOHzpwGgK9OhxlNAhZevUBsyprS8",
+  authDomain: "laya-club-house.firebaseapp.com",
+  projectId: "laya-club-house",
+  storageBucket: "laya-club-house.firebasestorage.app",
+  messagingSenderId: "458696969105",
+  appId: "1:458696969105:web:e584a06395a37324bae830",
+  measurementId: "G-2HLG605QZ9"
 };
 
 export const appRuntimeConfig = {
