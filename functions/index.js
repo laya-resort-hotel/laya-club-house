@@ -279,9 +279,9 @@ async function writeManagedMemberDocs({ uid, operatorUid, data = {} }) {
   const department = String(data.department || '') || null;
   const cardType = String(data.cardType || 'team_member');
   const cardLevel = Number(data.cardLevel || 0);
-  const cardColor = String(data.cardColor || 'white');
+  const cardColor = String(data.cardColor || 'gold');
   const status = String(data.status || 'active');
-  const language = String(data.language || 'en');
+  const language = String(data.language || 'th');
   const balance = Number(data.balance || 0);
   const pts = Number(data.points || 0);
   const photoURL = String(data.photoURL || '');
@@ -1400,7 +1400,7 @@ exports.registerSelfMember = onCall({ region: REGION }, async (request) => {
   const publicEmail = String(data.email || '').trim().toLowerCase();
   const displayName = String(data.displayName || [firstName, lastName].filter(Boolean).join(' ').trim() || employeeId || authRecord.displayName || authRecord.email.split('@')[0] || 'Member');
   const phone = String(data.phone || '').trim();
-  const language = String(data.language || 'en');
+  const language = String(data.language || 'th');
 
   if (!firstName) {
     throw new HttpsError('invalid-argument', 'First name is required.');
