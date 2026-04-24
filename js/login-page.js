@@ -24,6 +24,7 @@ const installAppLink = qs('#install-app-link');
 const appVersionNode = qs('#app-version');
 const runtimeNode = qs('#runtime-badge');
 const modeHelpNode = qs('#mode-help');
+const authTitleNode = qs('#auth-title');
 const demoSection = qs('#demo-section');
 const feedbackNode = qs('#login-feedback');
 const signupFeedbackNode = qs('#signup-feedback');
@@ -34,8 +35,32 @@ let deferredPrompt = null;
 
 function setAuthView(view = 'login') {
   const loginActive = view !== 'signup';
-  if (loginView) loginView.hidden = !loginActive;
-  if (signupView) signupView.hidden = loginActive;
+  if (loginView) {
+    loginView.hidden = !loginActive;
+    loginView.classList.toggle('active', loginActive);
+    loginView.setAttribute('aria-hidden', String(!loginActive));
+  }
+  if (signupView) {
+    signupView.hidden = loginActive;
+    signupView.classList.toggle('active', !loginActive);
+    signupView.setAttribute('aria-hidden', String(loginActive));
+  }
+  if (authTitleNode) {
+    authTitleNode.textContent = loginActive ? 'Welcome back' : 'Create account';
+  }
+  if (modeHelpNode) {
+    modeHelpNode.textContent = firebaseBootError
+      ? `Firebase boot error: ${firebaseBootError.message || firebaseBootError}`
+      : loginActive
+        ? (firebaseReady
+            ? 'Production Firebase is connected. Sign in with your account to access your card, balance, rewards, and service pages.'
+            : 'Production login is blocked until Firebase config and services are ready.')
+        : (firebaseReady
+            ? 'Create a new account with email or employee ID. After signup, the system will prepare your member profile automatically.'
+            : 'Account creation is blocked until Firebase config and services are ready.');
+  }
+  if (feedbackNode) feedbackNode.hidden = true;
+  if (signupFeedbackNode) signupFeedbackNode.hidden = true;
   authSwitchButtons.forEach((button) => {
     button.classList.toggle('active', button.dataset.authView === (loginActive ? 'login' : 'signup'));
   });
@@ -43,13 +68,6 @@ function setAuthView(view = 'login') {
 
 if (appVersionNode) appVersionNode.textContent = `v${appRuntimeConfig.appVersion}`;
 if (runtimeNode) runtimeNode.textContent = `${runtimeLabel} • ${runtimeProjectId}`;
-if (modeHelpNode) {
-  modeHelpNode.textContent = firebaseBootError
-    ? `Firebase boot error: ${firebaseBootError.message || firebaseBootError}`
-    : firebaseReady
-      ? 'Production Firebase is connected. Sign in with a real account, create a standard member account below, or open the separate guest portal.'
-      : 'Production login is blocked until Firebase config and services are ready.';
-}
 if (demoSection) demoSection.hidden = !demoModeEnabled;
 if (form) {
   const disabled = !firebaseReady && !demoModeEnabled;
@@ -63,6 +81,8 @@ if (signupForm) {
   const submitButton = signupForm.querySelector('button[type="submit"]');
   if (submitButton) submitButton.disabled = disabled;
 }
+
+setAuthView('login');
 
 window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();

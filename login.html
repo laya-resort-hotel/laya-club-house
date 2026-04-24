@@ -18,7 +18,7 @@
       </div>
 
       <header class="login-header">
-        <h1>Welcome back</h1>
+        <h1 id="auth-title">Welcome back</h1>
         <p id="mode-help">Sign in to access your member card, balance, rewards, dashboard, and scan center.</p>
       </header>
 
@@ -27,7 +27,7 @@
         <button type="button" class="auth-switch-btn" data-auth-view="signup">Create account</button>
       </section>
 
-      <section id="login-view" class="auth-view active">
+      <section id="login-view" class="auth-view active" aria-hidden="false">
         <form id="login-form" class="login-form">
           <label>
             <span>Email or Employee ID</span>
@@ -44,7 +44,7 @@
         </form>
       </section>
 
-      <section id="signup-view" class="auth-view" hidden>
+      <section id="signup-view" class="auth-view" hidden aria-hidden="true">
         <form id="signup-form" class="login-form">
           <div class="grid grid-2">
             <label>
@@ -114,7 +114,7 @@
         <span>•</span>
         <a href="#" id="clear-cache-link">Clear cache</a>
         <span>•</span>
-        <span id="app-version">v2.1.0</span>
+        <span id="app-version">v2.2.1</span>
       </footer>
     </section>
   </main>
