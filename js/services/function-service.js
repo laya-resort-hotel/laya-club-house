@@ -24,3 +24,5 @@ export async function markAllNotificationsReadCallable() { return invokeCallable
 export async function createManagedAuthUserCallable(payload) { return invokeCallable('createManagedAuthUser', payload); }
 export async function deleteManagedAuthUserCallable(payload) { return invokeCallable('deleteManagedAuthUser', payload); }
 export async function reportMonitoringEventCallable(payload) { return invokeCallable('reportMonitoringEvent', payload); }
+
+export async function registerSelfMemberCallable(payload) { return invokeCallable('registerSelfMember', payload); }

@@ -22,20 +22,74 @@
         <p id="mode-help">Sign in to access your member card, balance, rewards, dashboard, and scan center.</p>
       </header>
 
-      <form id="login-form" class="login-form">
-        <label>
-          <span>Email</span>
-          <input id="email" type="email" placeholder="name@example.com" />
-        </label>
+      <section class="auth-switch card-soft">
+        <button type="button" class="auth-switch-btn active" data-auth-view="login">Sign in</button>
+        <button type="button" class="auth-switch-btn" data-auth-view="signup">Create account</button>
+      </section>
 
-        <label>
-          <span>Password</span>
-          <input id="password" type="password" placeholder="••••••••" />
-        </label>
+      <section id="login-view" class="auth-view active">
+        <form id="login-form" class="login-form">
+          <label>
+            <span>Email or Employee ID</span>
+            <input id="email" type="text" placeholder="name@example.com or EMP001" />
+          </label>
 
-        <button class="btn btn-primary" type="submit">Login</button>
-              <div id="login-feedback" class="inline-feedback" hidden></div>
-      </form>
+          <label>
+            <span>Password</span>
+            <input id="password" type="password" placeholder="••••••••" />
+          </label>
+
+          <button class="btn btn-primary" type="submit">Login</button>
+          <div id="login-feedback" class="inline-feedback" hidden></div>
+        </form>
+      </section>
+
+      <section id="signup-view" class="auth-view" hidden>
+        <form id="signup-form" class="login-form">
+          <div class="grid grid-2">
+            <label>
+              <span>First name</span>
+              <input id="signup-first-name" type="text" placeholder="First name" />
+            </label>
+            <label>
+              <span>Last name</span>
+              <input id="signup-last-name" type="text" placeholder="Last name" />
+            </label>
+          </div>
+
+          <div class="grid grid-2">
+            <label>
+              <span>Employee ID</span>
+              <input id="signup-employee-id" type="text" placeholder="EMP001 or 640123" />
+            </label>
+            <label>
+              <span>Phone</span>
+              <input id="signup-phone" type="tel" placeholder="Phone number" />
+            </label>
+          </div>
+
+          <label>
+            <span>Email (optional if using Employee ID)</span>
+            <input id="signup-email" type="email" placeholder="name@example.com" />
+          </label>
+
+          <div class="grid grid-2">
+            <label>
+              <span>Password</span>
+              <input id="signup-password" type="password" placeholder="At least 6 characters" />
+            </label>
+            <label>
+              <span>Confirm password</span>
+              <input id="signup-confirm-password" type="password" placeholder="Repeat password" />
+            </label>
+          </div>
+
+          <p class="muted helper-copy">Self registration can use email or employee ID. If you register with employee ID only, the system creates a secure Firebase login behind the scenes. Staff, manager, and admin permissions should still be managed from the Admin panel.</p>
+
+          <button class="btn btn-primary" type="submit">Create account</button>
+          <div id="signup-feedback" class="inline-feedback" hidden></div>
+        </form>
+      </section>
 
       <section class="portal-strip card-soft">
         <div>
@@ -60,7 +114,7 @@
         <span>•</span>
         <a href="#" id="clear-cache-link">Clear cache</a>
         <span>•</span>
-        <span id="app-version">v2.0.0</span>
+        <span id="app-version">v2.1.0</span>
       </footer>
     </section>
   </main>

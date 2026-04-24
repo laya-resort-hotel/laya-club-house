@@ -31,3 +31,9 @@
 .guest-card-shell{border-color:rgba(228,114,134,.2)}
 .guest-login-form .grid-2{align-items:end}
 @media (max-width: 520px){.demo-grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.auth-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:6px;gap:6px}
+.auth-switch-btn{border:none;background:transparent;color:var(--muted);padding:12px 14px;border-radius:14px;font-weight:700}
+.auth-switch-btn.active{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line)}
+.auth-view{display:grid;gap:14px}
+.helper-copy{font-size:13px;line-height:1.6}

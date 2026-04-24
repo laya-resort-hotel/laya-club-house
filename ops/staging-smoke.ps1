@@ -11,8 +11,8 @@ Write-Host "[1/5] checking critical files"
   if (!(Test-Path $path)) { throw "Missing file: $_" }
 }
 Write-Host "[2/5] checking version sync"
-if (-not (Select-String -Path (Join-Path $root "js/firebase-config.js") -Pattern "2.0.0" -Quiet)) { throw "firebase-config version mismatch" }
-if (-not (Select-String -Path (Join-Path $root "README.md") -Pattern "2.0.0" -Quiet)) { throw "README version mismatch" }
+if (-not (Select-String -Path (Join-Path $root "js/firebase-config.js") -Pattern "2.1.0" -Quiet)) { throw "firebase-config version mismatch" }
+if (-not (Select-String -Path (Join-Path $root "README.md") -Pattern "2.1.0" -Quiet)) { throw "README version mismatch" }
 Write-Host "[3/5] checking docs"
 @(
   "docs/STAGING_TEST_PACK.md",

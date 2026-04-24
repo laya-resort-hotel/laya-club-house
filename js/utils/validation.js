@@ -8,6 +8,15 @@ export function isStrongEnoughPassword(value = '') {
   return String(value || '').length >= 6;
 }
 
+export function normalizeEmployeeId(value = '') {
+  return String(value || '').trim().toUpperCase();
+}
+
+export function isValidEmployeeId(value = '') {
+  const text = normalizeEmployeeId(value);
+  return /^[A-Z0-9_-]{3,30}$/.test(text);
+}
+
 export function normalizeRoomNo(value = '') {
   return String(value || '').trim().toUpperCase();
 }
@@ -56,9 +65,37 @@ export function requireNumber(value, message, options = {}) {
   return number;
 }
 
-export function validateLoginPayload({ email, password }) {
-  assert(isValidEmail(email), 'Please enter a valid email address.');
+export function validateLoginPayload({ identifier, password }) {
+  const safeIdentifier = String(identifier || '').trim();
+  assert(isValidEmail(safeIdentifier) || isValidEmployeeId(safeIdentifier), 'Please enter a valid email or employee ID.');
   assert(isStrongEnoughPassword(password), 'Password must be at least 6 characters.');
+  return {
+    identifier: isValidEmail(safeIdentifier) ? safeIdentifier.toLowerCase() : normalizeEmployeeId(safeIdentifier)
+  };
+}
+
+
+export function validateSignupPayload({ firstName, lastName, phone, employeeId, email, password, confirmPassword }) {
+  const safeFirstName = requireNonEmpty(firstName, 'First name is required.');
+  const safeLastName = String(lastName || '').trim();
+  const safePhone = String(phone || '').trim();
+  assert(safeFirstName.length <= 80, 'First name is too long.');
+  assert(safeLastName.length <= 80, 'Last name is too long.');
+  const safeEmployeeId = normalizeEmployeeId(employeeId || '');
+  const safeEmail = String(email || '').trim().toLowerCase();
+  assert(safePhone.length <= 30, 'Phone number is too long.');
+  assert(safeEmail || safeEmployeeId, 'Please enter email or employee ID.');
+  if (safeEmail) assert(isValidEmail(safeEmail), 'Please enter a valid email address.');
+  if (safeEmployeeId) assert(isValidEmployeeId(safeEmployeeId), 'Employee ID format is invalid.');
+  assert(isStrongEnoughPassword(password), 'Password must be at least 6 characters.');
+  assert(String(password || '') === String(confirmPassword || ''), 'Password confirmation does not match.');
+  return {
+    firstName: safeFirstName,
+    lastName: safeLastName,
+    phone: safePhone,
+    employeeId: safeEmployeeId,
+    email: safeEmail
+  };
 }
 
 export function validateGuestLoginPayload({ roomNo, stayStart, stayEnd, guestName }) {

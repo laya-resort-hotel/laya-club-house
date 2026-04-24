@@ -1,12 +1,12 @@
-# LAYA Card & Member System — Staging Test Pack + UAT Fix Pack (v2.0.0)
+# LAYA Card & Member System — Staging Test Pack + UAT Fix Pack (v2.1.0)
 
 ชุดนี้เป็น **Staging Test Pack + UAT Fix Pack** สำหรับยกระดับจาก hardening phase ไปสู่รอบทดสอบหน้างานจริงมากขึ้น โดยเน้นความพร้อมของระบบ, การทดสอบเป็นขั้นตอน, และการลด pain point ใน UAT
 
 ## สิ่งที่แก้ในรอบนี้
 - ปิด **demo mode** ใน production path (`allowDemoMode: false`)
 - หน้า login / guest portal จะ **fail closed** ถ้า Firebase production ไม่พร้อม
-- sync เวอร์ชันเป็น `2.0.0`
-- sync service worker cache key เป็น `laya-card-scaffold-v2-0-0`
+- sync เวอร์ชันเป็น `2.1.0`
+- sync service worker cache key เป็น `laya-card-scaffold-v2-1-0`
 - เพิ่ม scanner fallback ให้ใช้ `BarcodeDetector` ก่อน แล้ว fallback ไป `html5-qrcode` อัตโนมัติ
 - เพิ่ม validation เข้มขึ้นใน login / guest portal / scan / admin / HK / towel / chat
 - เพิ่ม safe delete flow แบบพิมพ์ `DELETE` หรือ `PURGE`
@@ -31,7 +31,7 @@
 ```js
 export const appRuntimeConfig = {
   functionsRegion: 'asia-southeast1',
-  appVersion: '2.0.0',
+  appVersion: '2.1.0',
   appName: 'LAYA Card & Member System',
   deploymentStage: 'production',
   allowDemoMode: false,

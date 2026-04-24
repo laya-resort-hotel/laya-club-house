@@ -1,4 +1,4 @@
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.2.0';
 const PUBLIC_VAPID_KEY = '';
 
 export const firebaseWebConfig = {

@@ -1,16 +1,42 @@
 import {
+  createUserWithEmailAndPassword,
+  deleteUser,
   onAuthStateChanged,
   signInAnonymously,
   signInWithEmailAndPassword,
-  signOut
+  signOut,
+  updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-import { auth, db, demoModeEnabled, firebaseReady, assertProductionReady } from '../firebase-init.js';
+import { auth, db, demoModeEnabled, firebaseReady, assertProductionReady, runtimeProjectId } from '../firebase-init.js';
 import { demoUsers } from '../demo-data.js';
-import { createGuestPortalSessionCallable } from '../services/function-service.js';
+import { createGuestPortalSessionCallable, registerSelfMemberCallable } from '../services/function-service.js';
 
 const SESSION_KEY = 'laya-card-session';
+const EMPLOYEE_AUTH_DOMAIN = `employee.${runtimeProjectId}.local`;
+
+function normalizeEmployeeId(value = '') {
+  return String(value || '').trim().toUpperCase();
+}
+
+function employeeIdToAuthEmail(value = '') {
+  const employeeId = normalizeEmployeeId(value);
+  return employeeId ? `${employeeId}@${EMPLOYEE_AUTH_DOMAIN}`.toLowerCase() : '';
+}
+
+function isEmail(value = '') {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
+}
+
+function resolveAuthLogin(value = '') {
+  const text = String(value || '').trim();
+  if (!text) return { identifier: '', employeeId: '', authEmail: '' };
+  if (isEmail(text)) return { identifier: text.toLowerCase(), employeeId: '', authEmail: text.toLowerCase() };
+  const employeeId = normalizeEmployeeId(text);
+  return { identifier: employeeId, employeeId, authEmail: employeeIdToAuthEmail(employeeId) };
+}
+
 
 function saveSession(payload) {
   localStorage.setItem(SESSION_KEY, JSON.stringify(payload));
@@ -54,9 +80,10 @@ async function fetchProfile(uid, fallbackUser = null) {
   };
 }
 
-export async function loginWithFirebase(email, password) {
+export async function loginWithFirebase(identifier, password) {
   assertProductionReady('Login');
-  const credential = await signInWithEmailAndPassword(auth, email, password);
+  const { authEmail } = resolveAuthLogin(identifier);
+  const credential = await signInWithEmailAndPassword(auth, authEmail, password);
   const uid = credential.user.uid;
   const profile = await fetchProfile(uid, credential.user);
 
@@ -130,12 +157,49 @@ export async function loginGuestPortal({ roomNo, stayStart, stayEnd, guestName =
   return payload;
 }
 
-export async function login(email, password) {
+
+export async function signUpMember({ firstName, lastName = '', phone = '', employeeId = '', email = '', password, language = 'en' }) {
+  assertProductionReady('Sign up');
+  const safeFirstName = String(firstName || '').trim();
+  const safeLastName = String(lastName || '').trim();
+  const safeEmployeeId = normalizeEmployeeId(employeeId);
+  const safePublicEmail = String(email || '').trim().toLowerCase();
+  const authEmail = safePublicEmail || employeeIdToAuthEmail(safeEmployeeId);
+  const safeDisplayName = [safeFirstName, safeLastName].filter(Boolean).join(' ').trim() || safeEmployeeId || authEmail?.split('@')[0] || 'Member';
+  const credential = await createUserWithEmailAndPassword(auth, authEmail, String(password || ''));
+  await updateProfile(credential.user, { displayName: safeDisplayName }).catch(() => null);
+  let result;
+  try {
+    result = await registerSelfMemberCallable({
+      firstName: safeFirstName,
+      lastName: safeLastName,
+      displayName: safeDisplayName,
+      phone: String(phone || '').trim(),
+      employeeId: safeEmployeeId,
+      email: safePublicEmail,
+      language: String(language || 'en')
+    });
+  } catch (error) {
+    await deleteUser(credential.user).catch(() => null);
+    throw error;
+  }
+  const profile = result?.profile || await fetchProfile(credential.user.uid, { ...credential.user, displayName: safeDisplayName, email: safePublicEmail || '' });
+  const payload = {
+    mode: 'production',
+    uid: credential.user.uid,
+    email: profile?.email || safePublicEmail || '',
+    profile
+  };
+  saveSession(payload);
+  return payload;
+}
+
+export async function login(identifier, password) {
   if (!firebaseReady) {
     if (demoModeEnabled) return loginDemo('member');
     throw new Error('Login is blocked because production Firebase is not ready.');
   }
-  return loginWithFirebase(email, password);
+  return loginWithFirebase(identifier, password);
 }
 
 export async function logout() {
@@ -156,7 +220,7 @@ export function subscribeAuth(cb) {
     const payload = {
       mode: demoModeEnabled ? 'demo' : 'production',
       uid: user.uid,
-      email: user.email || '',
+      email: profile?.email || '',
       profile
     };
     saveSession(payload);

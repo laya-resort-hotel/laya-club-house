@@ -121,6 +121,14 @@ function sanitizeRoomNo(value) {
   return String(value || '').trim().toUpperCase();
 }
 
+function sanitizeEmployeeId(value) {
+  return String(value || '').trim().toUpperCase();
+}
+
+function isValidEmployeeId(value) {
+  return /^[A-Z0-9_-]{3,30}$/.test(sanitizeEmployeeId(value));
+}
+
 function parseYmd(value, fieldName) {
   const text = String(value || '').trim();
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
@@ -228,6 +236,31 @@ async function getOrCreatePointAccountTx(tx, userId, cardId = null) {
   return { ref, data };
 }
 
+
+function defaultCardThemeKey(cardType, cardColor) {
+  const map = {
+    excom: 'excom_gold',
+    hod: 'hod_silver',
+    manager: 'manager_bronze',
+    team_member: 'team_white',
+    fitness_guest: 'fitness_black',
+    guest_point: 'guest_red'
+  };
+  return map[String(cardType || '').trim()] || `${String(cardColor || 'white').trim()}-v1`;
+}
+
+function cardPrefixForType(cardType) {
+  const map = {
+    excom: 'EX',
+    hod: 'HD',
+    manager: 'MG',
+    team_member: 'TM',
+    fitness_guest: 'FG',
+    guest_point: 'GC'
+  };
+  return map[String(cardType || '').trim()] || 'CR';
+}
+
 function requirePositiveNumber(value, fieldName) {
   const amount = Number(value || 0);
   if (!Number.isFinite(amount) || amount <= 0) {
@@ -253,6 +286,8 @@ async function writeManagedMemberDocs({ uid, operatorUid, data = {} }) {
   const pts = Number(data.points || 0);
   const photoURL = String(data.photoURL || '');
   const photoStoragePath = String(data.photoStoragePath || '');
+  const cardTheme = String(data.cardTheme || defaultCardThemeKey(cardType, cardColor));
+  const authManaged = data.authManaged !== false;
 
   await db.runTransaction(async (tx) => {
     const [userSnap, cardSnap] = await Promise.all([
@@ -271,13 +306,15 @@ async function writeManagedMemberDocs({ uid, operatorUid, data = {} }) {
       lastName: String(data.lastName || ''),
       displayName,
       email: String(data.email || ''),
+      authEmail: String(data.authEmail || data.email || ''),
+      employeeId: sanitizeEmployeeId(data.employeeId || ''),
       phone: String(data.phone || ''),
       roomNo: sanitizeRoomNo(data.roomNo || ''),
       language,
       photoURL,
       photoStoragePath,
       hasAuthAccount: true,
-      authManaged: true,
+      authManaged,
       status,
       createdAt: userSnap.exists ? userSnap.get('createdAt') || FieldValue.serverTimestamp() : FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
@@ -290,8 +327,8 @@ async function writeManagedMemberDocs({ uid, operatorUid, data = {} }) {
       cardType,
       cardLevel,
       cardColor,
-      cardTheme: `${cardColor}-v1`,
-      cardNumber: cardSnap.exists ? cardSnap.get('cardNumber') || `${cardType.slice(0, 2).toUpperCase()}-${uid.slice(-6).toUpperCase()}` : `${cardType.slice(0, 2).toUpperCase()}-${uid.slice(-6).toUpperCase()}`,
+      cardTheme,
+      cardNumber: cardSnap.exists ? cardSnap.get('cardNumber') || `${cardPrefixForType(cardType)}-${uid.slice(-6).toUpperCase()}` : `${cardPrefixForType(cardType)}-${uid.slice(-6).toUpperCase()}`,
       qrValue: cardSnap.exists ? cardSnap.get('qrValue') || `LAYA-CARD-${uid}` : `LAYA-CARD-${uid}`,
       walletAccountId: walletRef.id,
       pointAccountId: pointRef.id,
@@ -1341,4 +1378,75 @@ exports.onChatThreadUpdated = onDocumentUpdated({ region: REGION, document: 'cha
   const recipients = [after.guestUserId, after.assignedTo].filter(Boolean);
   if (!recipients.length) return;
   await announceToUsers(recipients, { type: 'chat_status', title: 'Conversation updated', body: `Chat status is now ${after.status || 'open'}.`, referenceType: 'chat_thread', referenceId: event.params.threadId, clickRoute: 'chat', actorUid: after.assignedTo || null, department: after.department || null, roomNo: after.roomNo || null });
+});
+
+
+exports.registerSelfMember = onCall({ region: REGION }, async (request) => {
+  const uid = requireAuth(request);
+  const data = request.data || {};
+  const authRecord = await getAuth().getUser(uid).catch(() => null);
+  if (!authRecord?.email) {
+    throw new HttpsError('failed-precondition', 'This account must have a Firebase login before registration.');
+  }
+
+  const existing = await getUserDoc(uid);
+  if (existing && !['member', 'guest'].includes(String(existing.role || ''))) {
+    throw new HttpsError('already-exists', 'This account is already managed by another role.');
+  }
+
+  const firstName = String(data.firstName || '').trim();
+  const lastName = String(data.lastName || '').trim();
+  const employeeId = sanitizeEmployeeId(data.employeeId || '');
+  const publicEmail = String(data.email || '').trim().toLowerCase();
+  const displayName = String(data.displayName || [firstName, lastName].filter(Boolean).join(' ').trim() || employeeId || authRecord.displayName || authRecord.email.split('@')[0] || 'Member');
+  const phone = String(data.phone || '').trim();
+  const language = String(data.language || 'en');
+
+  if (!firstName) {
+    throw new HttpsError('invalid-argument', 'First name is required.');
+  }
+  if (!publicEmail && !employeeId) {
+    throw new HttpsError('invalid-argument', 'Email or employee ID is required.');
+  }
+  if (employeeId && !isValidEmployeeId(employeeId)) {
+    throw new HttpsError('invalid-argument', 'Employee ID format is invalid.');
+  }
+
+  if (employeeId) {
+    const dup = await db.collection('users').where('employeeId', '==', employeeId).limit(1).get();
+    if (!dup.empty && dup.docs[0].id !== uid) {
+      throw new HttpsError('already-exists', 'This employee ID is already registered.');
+    }
+  }
+
+  const isEmployeeRegistration = Boolean(employeeId);
+
+  await writeManagedMemberDocs({
+    uid,
+    operatorUid: uid,
+    data: {
+      role: 'member',
+      department: null,
+      cardType: isEmployeeRegistration ? 'team_member' : 'guest_point',
+      cardLevel: isEmployeeRegistration ? 1 : 0,
+      cardColor: isEmployeeRegistration ? 'white' : 'red',
+      cardTheme: isEmployeeRegistration ? 'team_white' : 'guest_red',
+      firstName,
+      lastName,
+      displayName,
+      employeeId,
+      email: publicEmail,
+      authEmail: authRecord.email,
+      phone,
+      language,
+      balance: 0,
+      points: 0,
+      status: 'active',
+      authManaged: false
+    }
+  });
+
+  await getAuth().updateUser(uid, { displayName }).catch(() => null);
+  const profile = await getUserDoc(uid);
+  return { ok: true, uid, profile };
 });

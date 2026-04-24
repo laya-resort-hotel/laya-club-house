@@ -1,7 +1,7 @@
-import { login, loginDemo } from './auth/auth-service.js';
+import { login, loginDemo, signUpMember } from './auth/auth-service.js';
 import { appRuntimeConfig, firebaseBootError, firebaseReady, runtimeProjectId, runtimeLabel, demoModeEnabled } from './firebase-init.js';
 import { clearAppCache, installServiceWorker, qs, qsa } from './utils/helpers.js';
-import { validateLoginPayload } from './utils/validation.js';
+import { validateLoginPayload, validateSignupPayload } from './utils/validation.js';
 import { initGlobalMonitoring, reportHandledError, reportOperationalEvent } from './services/monitoring-service.js';
 import { runBusyAction } from './services/ui-feedback.js';
 
@@ -9,8 +9,16 @@ installServiceWorker();
 initGlobalMonitoring(() => ({ route: 'login', role: 'public', userId: null }));
 
 const form = qs('#login-form');
+const signupForm = qs('#signup-form');
 const emailInput = qs('#email');
 const passwordInput = qs('#password');
+const signupFirstNameInput = qs('#signup-first-name');
+const signupLastNameInput = qs('#signup-last-name');
+const signupPhoneInput = qs('#signup-phone');
+const signupEmployeeIdInput = qs('#signup-employee-id');
+const signupEmailInput = qs('#signup-email');
+const signupPasswordInput = qs('#signup-password');
+const signupConfirmPasswordInput = qs('#signup-confirm-password');
 const clearCacheLink = qs('#clear-cache-link');
 const installAppLink = qs('#install-app-link');
 const appVersionNode = qs('#app-version');
@@ -18,7 +26,20 @@ const runtimeNode = qs('#runtime-badge');
 const modeHelpNode = qs('#mode-help');
 const demoSection = qs('#demo-section');
 const feedbackNode = qs('#login-feedback');
+const signupFeedbackNode = qs('#signup-feedback');
+const loginView = qs('#login-view');
+const signupView = qs('#signup-view');
+const authSwitchButtons = qsa('[data-auth-view]');
 let deferredPrompt = null;
+
+function setAuthView(view = 'login') {
+  const loginActive = view !== 'signup';
+  if (loginView) loginView.hidden = !loginActive;
+  if (signupView) signupView.hidden = loginActive;
+  authSwitchButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.authView === (loginActive ? 'login' : 'signup'));
+  });
+}
 
 if (appVersionNode) appVersionNode.textContent = `v${appRuntimeConfig.appVersion}`;
 if (runtimeNode) runtimeNode.textContent = `${runtimeLabel} • ${runtimeProjectId}`;
@@ -26,7 +47,7 @@ if (modeHelpNode) {
   modeHelpNode.textContent = firebaseBootError
     ? `Firebase boot error: ${firebaseBootError.message || firebaseBootError}`
     : firebaseReady
-      ? 'Production Firebase is connected. Sign in with a real account from this project, or open the separate guest portal below.'
+      ? 'Production Firebase is connected. Sign in with a real account, create a standard member account below, or open the separate guest portal.'
       : 'Production login is blocked until Firebase config and services are ready.';
 }
 if (demoSection) demoSection.hidden = !demoModeEnabled;
@@ -36,30 +57,74 @@ if (form) {
   const submitButton = form.querySelector('button[type="submit"]');
   if (submitButton) submitButton.disabled = disabled;
 }
+if (signupForm) {
+  const disabled = !firebaseReady;
+  qsa('input', signupForm).forEach((node) => { node.disabled = disabled; });
+  const submitButton = signupForm.querySelector('button[type="submit"]');
+  if (submitButton) submitButton.disabled = disabled;
+}
 
 window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();
   deferredPrompt = event;
 });
 
+authSwitchButtons.forEach((button) => {
+  button.addEventListener('click', () => setAuthView(button.dataset.authView || 'login'));
+});
+
 form?.addEventListener('submit', async (event) => {
   event.preventDefault();
   const submitButton = form?.querySelector('button[type="submit"]');
   try {
-    validateLoginPayload({ email: emailInput?.value, password: passwordInput?.value });
+    const loginPayload = validateLoginPayload({ identifier: emailInput?.value, password: passwordInput?.value });
     await runBusyAction({
       form,
       button: submitButton,
       feedbackNode,
       busyText: 'Signing in...',
       action: async () => {
-        await login(emailInput.value.trim(), passwordInput.value);
-        await reportOperationalEvent('auth', 'login_success', { emailDomain: emailInput.value.split('@')[1] || '' });
+        await login(loginPayload.identifier, passwordInput.value);
+        await reportOperationalEvent('auth', 'login_success', { loginType: loginPayload.identifier.includes('@') ? 'email' : 'employee_id' });
       }
     });
     location.href = './index.html#home';
   } catch (error) {
     reportHandledError('login_submit', error, { route: 'login' });
+  }
+});
+
+signupForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const submitButton = signupForm?.querySelector('button[type="submit"]');
+  try {
+    const payload = validateSignupPayload({
+      firstName: signupFirstNameInput?.value,
+      lastName: signupLastNameInput?.value,
+      phone: signupPhoneInput?.value,
+      employeeId: signupEmployeeIdInput?.value,
+      email: signupEmailInput?.value,
+      password: signupPasswordInput?.value,
+      confirmPassword: signupConfirmPasswordInput?.value
+    });
+    await runBusyAction({
+      form: signupForm,
+      button: submitButton,
+      feedbackNode: signupFeedbackNode,
+      busyText: 'Creating account...',
+      successMessage: 'Account created successfully. Redirecting...',
+      action: async () => {
+        await signUpMember({
+          ...payload,
+          password: signupPasswordInput.value,
+          language: navigator.language?.slice(0, 2) || 'en'
+        });
+        await reportOperationalEvent('auth', 'signup_success', { signupMethod: payload.employeeId ? (payload.email ? 'email_and_employee_id' : 'employee_id') : 'email' });
+      }
+    });
+    location.href = './index.html#home';
+  } catch (error) {
+    reportHandledError('signup_submit', error, { route: 'login' });
   }
 });
 
