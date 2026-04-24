@@ -97,8 +97,8 @@ export function renderHomePage(user, snapshot = {}) {
   })();
 
   const firstName = (user.displayName || 'Member').split(' ')[0];
-  const balance = money(user.balance || 0);
-  const pointBalance = points(user.points || 0);
+  const balance = money(snapshot.wallet?.balance ?? user.balance ?? 0);
+  const pointBalance = points(snapshot.points?.points ?? user.points ?? 0);
   const unread = snapshot.unreadNotifications || 0;
 
   return `

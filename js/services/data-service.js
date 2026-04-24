@@ -302,17 +302,29 @@ export async function loadHomeSnapshot(user) {
     };
   }
 
-  const [content, notificationCount, latestRequests] = await Promise.all([
+  const [content, notificationCount, latestRequests, card, wallet, pointAccount] = await Promise.all([
     readActiveContent(),
     countDocs(query(collection(db, 'notifications'), where('targetUserId', '==', user.uid), where('isRead', '==', false))).catch(() => 0),
-    readHomeLatestActivity(user).catch(() => [])
+    readHomeLatestActivity(user).catch(() => []),
+    readCollection('cards', { where: [{ field: 'userId', op: '==', value: user.uid }], limit: 1 }).then((rows) => rows[0] || null).catch(() => null),
+    readSingleByUserId('wallet_accounts', user.uid).catch(() => null),
+    readSingleByUserId('point_accounts', user.uid).catch(() => null)
   ]);
+
+  const themeKey = card?.cardTheme || user.cardTheme || getDefaultThemeKey(card?.cardType || user.cardType, card?.cardColor || user.cardColor);
+  const cardTheme = themeKey
+    ? await readCollection('card_themes', { where: [{ field: 'key', op: '==', value: themeKey }], limit: 1 }).then((rows) => rows[0] || null).catch(() => null)
+    : null;
 
   return {
     ...content,
     quickServices: getBuiltinServiceCards(user, content.serviceLinks),
     unreadNotifications: notificationCount,
-    latestRequests
+    latestRequests,
+    card,
+    cardTheme,
+    wallet: wallet || { balance: Number(user.balance || 0) },
+    points: pointAccount || { points: Number(user.points || 0) }
   };
 }
 
