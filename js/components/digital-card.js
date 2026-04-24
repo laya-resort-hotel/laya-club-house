@@ -6,7 +6,8 @@ export function getQrImageUrl(value = '', size = 160) {
 }
 
 function resolveTheme(card = {}, user = {}, theme = null) {
-  const color = theme?.cardColor || card?.cardColor || user?.cardColor || 'white';
+  // Default changed from 'white' → 'gold' for better contrast
+  const color = theme?.cardColor || card?.cardColor || user?.cardColor || 'gold';
   const gradientFrom = theme?.gradientFrom || '';
   const gradientTo = theme?.gradientTo || '';
   const accentColor = theme?.accentColor || '';
@@ -31,28 +32,28 @@ export function renderDigitalCard(user = {}, card = null, theme = null) {
 
   return `
     <section class="digital-card card-${themeConfig.color}" style="${styleParts.join(';')}">
-      <div class="card-brand-row">
-        <div>
-          <p class="eyebrow" style="color:var(--card-muted, rgba(255,255,255,.78))">${theme?.title || 'LAYA Card'}</p>
-          <h2>${user.displayName || 'Member'}</h2>
+      <div class="dc-top">
+        <div class="dc-brand-block">
+          <p class="dc-eyebrow">${theme?.title || 'LAYA CARD'}</p>
+          <h2 class="dc-name">${user.displayName || 'Member'}</h2>
+          <p class="dc-role">${cardType}${user.roomNo ? ` · Room ${user.roomNo}` : ''}</p>
         </div>
-        <div class="card-brand-pill">${themeConfig.logoText}</div>
+        <div class="dc-logo-pill">${themeConfig.logoText}</div>
       </div>
 
-      <div class="info-row">
-        <div>
-          <p class="muted" style="color:var(--card-muted, rgba(255,255,255,.78))">${cardType}</p>
-          <strong>${cardNumber}</strong>
-          <p class="muted" style="color:var(--card-muted, rgba(255,255,255,.78))">${user.roomNo ? `Room ${user.roomNo}` : user.role || 'member'}</p>
+      <div class="dc-chip-row">
+        <div class="dc-chip" aria-hidden="true"></div>
+        <div class="dc-number">${cardNumber}</div>
+      </div>
+
+      <div class="dc-bottom">
+        <div class="dc-identity">
+          <p class="dc-label">${themeConfig.footerText}</p>
+          <p class="dc-qr-value">${qrValue}</p>
         </div>
         <div class="qr-box qr-box-image">
           <img src="${qrImage}" alt="QR code for ${cardNumber}" loading="lazy" referrerpolicy="no-referrer">
         </div>
-      </div>
-
-      <div class="card-footer-row">
-        <span>${themeConfig.footerText}</span>
-        <span>${qrValue}</span>
       </div>
     </section>
   `;

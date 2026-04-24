@@ -1,4 +1,4 @@
-const CACHE = 'laya-card-scaffold-v2-2-4';
+const CACHE = 'laya-card-scaffold-v2-2-5-redesign';
 const ASSETS = [
   './',
   './login.html',
