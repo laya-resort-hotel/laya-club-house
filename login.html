@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>LAYA Card System – Login</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/pages/login.css" />
+</head>
+<body class="login-body">
+  <main class="login-shell">
+    <section class="login-card">
+      <div class="brand-block">
+        <div class="brand-mark">LAYA</div>
+        <p class="brand-subtitle">Card & Member System</p>
+        <span class="badge" id="runtime-badge">Loading runtime...</span>
+      </div>
+
+      <header class="login-header">
+        <h1 id="auth-title">Welcome back</h1>
+        <p id="mode-help">Sign in to access your member card, balance, rewards, dashboard, and scan center.</p>
+      </header>
+
+      <section class="auth-switch card-soft">
+        <button type="button" class="auth-switch-btn active" data-auth-view="login">Sign in</button>
+        <button type="button" class="auth-switch-btn" data-auth-view="signup">Create account</button>
+      </section>
+
+      <section id="login-view" class="auth-view active" aria-hidden="false">
+        <form id="login-form" class="login-form">
+          <label>
+            <span>Email or Employee ID</span>
+            <input id="email" type="text" placeholder="name@example.com or EMP001" />
+          </label>
+
+          <label>
+            <span>Password</span>
+            <input id="password" type="password" placeholder="••••••••" />
+          </label>
+
+          <button class="btn btn-primary" type="submit">Login</button>
+          <div id="login-feedback" class="inline-feedback" hidden></div>
+        </form>
+      </section>
+
+      <section id="signup-view" class="auth-view" hidden aria-hidden="true">
+        <form id="signup-form" class="login-form">
+          <div class="grid grid-2">
+            <label>
+              <span>First name</span>
+              <input id="signup-first-name" type="text" placeholder="First name" />
+            </label>
+            <label>
+              <span>Last name</span>
+              <input id="signup-last-name" type="text" placeholder="Last name" />
+            </label>
+          </div>
+
+          <div class="grid grid-2">
+            <label>
+              <span>Employee ID</span>
+              <input id="signup-employee-id" type="text" placeholder="EMP001 or 640123" />
+            </label>
+            <label>
+              <span>Phone</span>
+              <input id="signup-phone" type="tel" placeholder="Phone number" />
+            </label>
+          </div>
+
+          <div class="grid grid-2">
+            <label>
+              <span>Password</span>
+              <input id="signup-password" type="password" placeholder="At least 6 characters" />
+            </label>
+            <label>
+              <span>Confirm password</span>
+              <input id="signup-confirm-password" type="password" placeholder="Repeat password" />
+            </label>
+          </div>
+
+          <p class="muted helper-copy">Register with Employee ID and password. The system will create your Firebase login behind the scenes using your Employee ID. Staff, manager, and admin permissions should still be managed from the Admin panel.</p>
+
+          <button class="btn btn-primary" type="submit">Create account</button>
+          <div id="signup-feedback" class="inline-feedback" hidden></div>
+        </form>
+      </section>
+
+      <section class="portal-strip card-soft">
+        <div>
+          <strong>Guest Portal</strong>
+          <p class="muted">Open the separate guest link for room number + stay period login.</p>
+        </div>
+        <a class="btn btn-secondary" href="./guest.html">Open guest portal</a>
+      </section>
+
+      <section class="login-actions" id="demo-section" hidden>
+        <p class="muted">Demo mode is enabled for non-production testing only.</p>
+        <div class="demo-grid demo-grid-4">
+          <button class="btn btn-secondary" data-demo-role="member">Member</button>
+          <button class="btn btn-secondary" data-demo-role="guest">Guest</button>
+          <button class="btn btn-secondary" data-demo-role="staff">Staff</button>
+          <button class="btn btn-secondary" data-demo-role="admin">Admin</button>
+        </div>
+      </section>
+
+      <footer class="login-footer">
+        <a href="#" id="install-app-link">Install app</a>
+        <span>•</span>
+        <a href="#" id="clear-cache-link">Clear cache</a>
+        <span>•</span>
+        <span id="app-version">v2.2.4</span>
+      </footer>
+    </section>
+  </main>
+
+  <script type="module" src="js/login-page.js"></script>
+</body>
+</html>

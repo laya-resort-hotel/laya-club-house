@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>LAYA Card System – Guest Portal</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/pages/login.css" />
+</head>
+<body class="login-body guest-portal-body">
+  <main class="login-shell">
+    <section class="login-card guest-card-shell">
+      <div class="brand-block">
+        <div class="brand-mark">LAYA</div>
+        <p class="brand-subtitle">Guest Portal</p>
+        <span class="badge" id="guest-runtime-badge">Loading runtime...</span>
+      </div>
+
+      <header class="login-header">
+        <h1>Guest access</h1>
+        <p id="guest-mode-help">Enter your room number and stay period. Access will expire at 12:00 on your check-out date.</p>
+      </header>
+
+      <form id="guest-login-form" class="login-form guest-login-form">
+        <label>
+          <span>Room number</span>
+          <input id="guest-room" placeholder="D101" />
+        </label>
+
+        <label>
+          <span>Guest name (optional)</span>
+          <input id="guest-name" placeholder="Guest name" />
+        </label>
+
+        <div class="grid grid-2">
+          <label>
+            <span>Check-in date</span>
+            <input id="guest-stay-start" type="date" />
+          </label>
+
+          <label>
+            <span>Check-out date</span>
+            <input id="guest-stay-end" type="date" />
+          </label>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Open guest portal</button>
+              <div id="guest-feedback" class="inline-feedback" hidden></div>
+      </form>
+
+      <section class="portal-strip card-soft red-soft">
+        <div>
+          <strong>Session rule</strong>
+          <p class="muted">The guest session is marked active immediately and expires automatically at 12:00 on the check-out day.</p>
+        </div>
+      </section>
+
+      <footer class="login-footer">
+        <a href="./login.html">Back to staff/member login</a>
+        <span>•</span>
+        <a href="#" id="guest-clear-cache-link">Clear cache</a>
+        <span>•</span>
+        <span id="guest-app-version">v2.2.4</span>
+      </footer>
+    </section>
+  </main>
+
+  <script type="module" src="js/guest-page.js"></script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function myUid() {
+      return request.auth.uid;
+    }
+
+    function userDocPath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+
+    function hasUserDoc() {
+      return signedIn() && exists(userDocPath(myUid()));
+    }
+
+    function myUser() {
+      return hasUserDoc() ? get(userDocPath(myUid())).data : null;
+    }
+
+    function userRole() {
+      return hasUserDoc() ? myUser().role : null;
+    }
+
+    function userDept() {
+      return hasUserDoc() ? myUser().department : null;
+    }
+
+    function isAdminLike() {
+      return userRole() in ['super_admin', 'admin'];
+    }
+
+    function isFinanceLike() {
+      return userRole() in ['super_admin', 'admin', 'finance_staff'];
+    }
+
+    function isManagerLike() {
+      return userRole() in ['super_admin', 'admin', 'department_manager'];
+    }
+
+    function isStaffLike() {
+      return userRole() in [
+        'super_admin',
+        'admin',
+        'staff',
+        'finance_staff',
+        'fo_staff',
+        'hk_staff',
+        'fb_staff',
+        'fitness_staff',
+        'department_manager'
+      ];
+    }
+
+    function isOwner(uid) {
+      return signedIn() && myUid() == uid;
+    }
+
+    function safeProfileKeys() {
+      return [
+        'firstName',
+        'lastName',
+        'displayName',
+        'phone',
+        'email',
+        'photoURL',
+        'language',
+        'updatedAt'
+      ];
+    }
+
+    function selfUpdateAllowed() {
+      return request.resource.data.diff(resource.data).changedKeys().hasOnly(safeProfileKeys());
+    }
+
+    function canReadThreadData(threadData) {
+      return signedIn() && (
+        threadData.guestUserId == myUid() ||
+        threadData.assignedTo == myUid() ||
+        isAdminLike() ||
+        (isStaffLike() && threadData.department == userDept()) ||
+        (isStaffLike() && userDept() == 'admin')
+      );
+    }
+
+    function canCreateOwnGuestOrMemberProfile(userId) {
+      return isOwner(userId) &&
+        request.resource.data.role in ['member', 'guest'] &&
+        request.resource.data.status == 'active' &&
+        request.resource.data.keys().hasOnly([
+          'uid',
+          'role',
+          'department',
+          'cardType',
+          'cardLevel',
+          'cardColor',
+          'firstName',
+          'lastName',
+          'displayName',
+          'email',
+          'phone',
+          'roomNo',
+          'stayStart',
+          'stayEnd',
+          'guestExpiryAt',
+          'language',
+          'photoURL',
+          'status',
+          'createdAt',
+          'updatedAt',
+          'createdBy',
+          'guestPortal'
+        ]);
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn() && (isOwner(userId) || isStaffLike());
+      allow create: if isAdminLike() || canCreateOwnGuestOrMemberProfile(userId);
+      allow update: if isAdminLike() || (isOwner(userId) && selfUpdateAllowed());
+      allow delete: if false;
+    }
+
+    match /cards/{cardId} {
+      allow read: if signedIn() && (resource.data.userId == myUid() || isStaffLike());
+      allow create, update, delete: if isAdminLike();
+    }
+
+    match /wallet_accounts/{walletAccountId} {
+      allow read: if signedIn() && (resource.data.userId == myUid() || isFinanceLike() || isManagerLike());
+      allow create, update, delete: if false;
+    }
+
+    match /wallet_transactions/{transactionId} {
+      allow read: if signedIn() && (resource.data.userId == myUid() || isFinanceLike() || isManagerLike());
+      allow create, update, delete: if false;
+    }
+
+    match /point_accounts/{pointAccountId} {
+      allow read: if signedIn() && (resource.data.userId == myUid() || isFinanceLike() || isManagerLike());
+      allow create, update, delete: if false;
+    }
+
+    match /point_transactions/{transactionId} {
+      allow read: if signedIn() && (resource.data.userId == myUid() || isFinanceLike() || isManagerLike());
+      allow create, update, delete: if false;
+    }
+
+    match /rewards/{rewardId} {
+      allow read: if signedIn() && (resource.data.active == true || isAdminLike());
+      allow create, update, delete: if isAdminLike();
+    }
+
+    match /redemptions/{redemptionId} {
+      allow read: if signedIn() && (resource.data.userId == myUid() || isStaffLike());
+      allow create, update, delete: if false;
+    }
+
+    match /guest_sessions/{sessionId} {
+      allow read: if signedIn() && (resource.data.userId == myUid() || isStaffLike());
+      allow create, update, delete: if false;
+    }
+
+    match /service_links/{docId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdminLike();
+    }
+
+    match /hk_requests/{requestId} {
+      allow read: if signedIn() && (
+        resource.data.userId == myUid() ||
+        isAdminLike() ||
+        isManagerLike() ||
+        userDept() in ['hk', 'fo', 'admin']
+      );
+      allow create: if signedIn() &&
+        request.resource.data.userId == myUid() &&
+        request.resource.data.status == 'new';
+      allow update: if isAdminLike() || isManagerLike() || userDept() in ['hk', 'fo', 'admin'];
+      allow delete: if false;
+    }
+
+    match /towel_requests/{requestId} {
+      allow read: if signedIn() && (
+        resource.data.userId == myUid() ||
+        isAdminLike() ||
+        isManagerLike() ||
+        userDept() in ['hk', 'fo', 'fitness', 'admin']
+      );
+      allow create: if signedIn() &&
+        request.resource.data.userId == myUid() &&
+        request.resource.data.status == 'borrowed';
+      allow update: if isAdminLike() || isManagerLike() || userDept() in ['hk', 'fo', 'fitness', 'admin'];
+      allow delete: if false;
+    }
+
+    match /chat_threads/{threadId} {
+      allow read: if signedIn() && canReadThreadData(resource.data);
+      allow create: if signedIn() && (
+        request.resource.data.guestUserId == myUid() ||
+        isStaffLike()
+      );
+      allow update: if signedIn() && (
+        canReadThreadData(resource.data) ||
+        isAdminLike() ||
+        (isStaffLike() && resource.data.department == userDept()) ||
+        (isStaffLike() && userDept() == 'admin')
+      );
+      allow delete: if false;
+    }
+
+    match /chat_messages/{messageId} {
+      allow read: if signedIn() &&
+        exists(/databases/$(database)/documents/chat_threads/$(resource.data.threadId)) &&
+        canReadThreadData(get(/databases/$(database)/documents/chat_threads/$(resource.data.threadId)).data);
+
+      allow create: if signedIn() &&
+        exists(/databases/$(database)/documents/chat_threads/$(request.resource.data.threadId)) &&
+        canReadThreadData(get(/databases/$(database)/documents/chat_threads/$(request.resource.data.threadId)).data) &&
+        request.resource.data.senderId == myUid();
+
+      allow update, delete: if false;
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if signedIn() && (resource.data.targetUserId == myUid() || isAdminLike());
+      allow create: if false;
+      allow update: if isAdminLike() || (resource.data.targetUserId == myUid() &&
+        request.resource.data.diff(resource.data).changedKeys().hasOnly(['isRead', 'readAt']));
+      allow delete: if false;
+    }
+
+    match /push_tokens/{tokenId} {
+      allow read: if signedIn() && (resource.data.userId == myUid() || isAdminLike());
+      allow create: if signedIn() && request.resource.data.userId == myUid();
+      allow update: if signedIn() && resource.data.userId == myUid() && request.resource.data.diff(resource.data).changedKeys().hasOnly(['active', 'lastSeenAt', 'language', 'roomNo', 'department', 'userAgent']);
+      allow delete: if false;
+    }
+
+    match /scan_logs/{logId} {
+      allow read: if isStaffLike() || isAdminLike();
+      allow create, update, delete: if false;
+    }
+
+    match /scan_requests/{requestId} {
+      allow read: if signedIn() && (
+        isAdminLike() ||
+        isStaffLike() ||
+        resource.data.userId == myUid()
+      );
+      allow create: if signedIn() && (isStaffLike() || isAdminLike()) && request.resource.data.operatorUid == myUid();
+      allow update, delete: if false;
+    }
+
+    match /content_banners/{docId} {
+      allow read: if signedIn() && (resource.data.active == true || isAdminLike());
+      allow create, update, delete: if isAdminLike();
+    }
+
+    match /card_themes/{docId} {
+      allow read: if signedIn() && (resource.data.active == true || isAdminLike());
+      allow create, update, delete: if isAdminLike();
+    }
+
+    match /content_links/{docId} {
+      allow read: if signedIn() && (resource.data.active == true || isAdminLike());
+      allow create, update, delete: if isAdminLike();
+    }
+
+    match /system_settings/{docId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdminLike();
+    }
+
+    match /app_versions/{docId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdminLike();
+    }
+
+    match /roles/{docId} {
+      allow read: if isAdminLike();
+      allow create, update, delete: if isAdminLike();
+    }
+
+    match /audit_logs/{logId} {
+      allow read: if isAdminLike() || isFinanceLike();
+      allow create, update, delete: if false;
+    }
+
+    match /monitoring_events/{eventId} {
+      allow read: if isAdminLike() || isManagerLike();
+      allow create, update, delete: if false;
+    }
+
+    match /system_alerts/{alertId} {
+      allow read: if isAdminLike() || isManagerLike();
+      allow create, update, delete: if false;
+    }
+
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
