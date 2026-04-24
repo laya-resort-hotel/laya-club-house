@@ -47,7 +47,7 @@ function isFitnessGuestCard(user = {}, card = null) {
     normalizeToken(user?.role)
   ].filter(Boolean);
 
-  return tokens.some((token) => token === 'fitness_guest' || token === 'fitnessguest' || token.includes('fitness_guest') || token.includes('fitness'));
+  return tokens.some((token) => token === 'fitness_guest' || token === 'fitnessguest');
 }
 
 function renderCardFront({ user, theme, cardType, cardNumber, qrValue, qrImage, themeConfig }) {
