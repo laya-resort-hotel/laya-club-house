@@ -84,9 +84,10 @@ export function validateSignupPayload({ firstName, lastName, phone, employeeId, 
   const safeEmployeeId = normalizeEmployeeId(employeeId || '');
   const safeEmail = String(email || '').trim().toLowerCase();
   assert(safePhone.length <= 30, 'Phone number is too long.');
-  assert(safeEmail || safeEmployeeId, 'Please enter email or employee ID.');
+  // v2.2.4: self-registration requires employee ID only (email field removed from form)
+  assert(safeEmployeeId, 'Employee ID is required.');
+  assert(isValidEmployeeId(safeEmployeeId), 'Employee ID format is invalid. Use letters, numbers, hyphens or underscores (3–30 chars).');
   if (safeEmail) assert(isValidEmail(safeEmail), 'Please enter a valid email address.');
-  if (safeEmployeeId) assert(isValidEmployeeId(safeEmployeeId), 'Employee ID format is invalid.');
   assert(isStrongEnoughPassword(password), 'Password must be at least 6 characters.');
   assert(String(password || '') === String(confirmPassword || ''), 'Password confirmation does not match.');
   return {

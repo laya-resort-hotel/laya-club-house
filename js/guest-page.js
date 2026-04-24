@@ -37,7 +37,17 @@ const todayValue = `${y}-${m}-${d}`;
 if (startInput && !startInput.value) startInput.value = todayValue;
 if (endInput && !endInput.value) endInput.value = todayValue;
 const submitButton = form?.querySelector('button[type="submit"]');
-if (submitButton) submitButton.disabled = !firebaseReady;
+if (submitButton) {
+  submitButton.disabled = !firebaseReady;
+  // Bug fix: show why button is disabled so user isn't confused
+  if (!firebaseReady && feedbackNode) {
+    feedbackNode.hidden = false;
+    feedbackNode.className = 'inline-feedback error';
+    feedbackNode.textContent = firebaseReady === false
+      ? 'Guest portal is currently unavailable. Please try again shortly or contact reception.'
+      : 'Connecting to server…';
+  }
+}
 
 form?.addEventListener('submit', async (event) => {
   event.preventDefault();

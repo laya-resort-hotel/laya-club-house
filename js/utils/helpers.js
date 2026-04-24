@@ -41,13 +41,15 @@ export function toMillis(value) {
 export function formatRelativeTime(value) {
   const timestamp = toMillis(value);
   if (!timestamp) return '-';
-  const diffMinutes = Math.round((Date.now() - timestamp) / 60000);
+  // Bug fix: use Math.floor instead of Math.round to avoid "2 days ago" for 1.5 days
+  const diffMinutes = Math.floor((Date.now() - timestamp) / 60000);
   if (diffMinutes < 1) return 'just now';
   if (diffMinutes < 60) return `${diffMinutes} min ago`;
-  const diffHours = Math.round(diffMinutes / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
   if (diffHours < 24) return `${diffHours} hr ago`;
-  const diffDays = Math.round(diffHours / 24);
-  return `${diffDays} day ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  // Bug fix: proper plural
+  return diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
 }
 
 export function formatDateTime(value) {
