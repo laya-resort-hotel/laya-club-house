@@ -1096,3 +1096,80 @@
   display: block;
   object-fit: fill;
 }
+
+/* ── Smooth 3D Flip Performance Patch v2.2.9 ──────────────── */
+.digital-card-widget {
+  isolation: isolate;
+}
+
+.digital-card-flip {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  contain: layout paint style;
+}
+
+.digital-card-flip-inner {
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: transform .52s cubic-bezier(.22, .75, .22, 1);
+}
+
+.digital-card-widget.is-flipped .digital-card-flip-inner {
+  transform: rotateY(180deg) translateZ(0);
+  -webkit-transform: rotateY(180deg) translateZ(0);
+}
+
+.digital-card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform;
+  transform: rotateY(0deg) translateZ(.1px);
+  -webkit-transform: rotateY(0deg) translateZ(.1px);
+}
+
+.digital-card-flip .digital-card,
+.digital-card-flip .digital-card:hover {
+  transition: none;
+  transform: none;
+}
+
+.digital-card-front {
+  transform: rotateY(0deg) translateZ(.1px);
+  -webkit-transform: rotateY(0deg) translateZ(.1px);
+}
+
+.digital-card-back {
+  transform: rotateY(180deg) translateZ(.1px);
+  -webkit-transform: rotateY(180deg) translateZ(.1px);
+}
+
+.digital-card-widget.is-fitness-card .digital-card-flip {
+  filter: drop-shadow(0 24px 54px rgba(0,0,0,.36));
+}
+
+.digital-card-widget.is-fitness-card .digital-card-face {
+  box-shadow: none;
+}
+
+.fitness-card-image,
+.fitness-qr-box img,
+.qr-box img {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+  image-rendering: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .digital-card-flip-inner {
+    transition: transform .18s ease-out;
+  }
+}

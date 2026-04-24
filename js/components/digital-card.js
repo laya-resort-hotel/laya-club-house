@@ -73,7 +73,7 @@ function renderCardFront({ user, theme, cardType, cardNumber, qrValue, qrImage, 
           <p class="dc-qr-value">${qrValue}</p>
         </div>
         <div class="qr-box qr-box-image">
-          <img src="${qrImage}" alt="QR code for ${cardNumber}" loading="lazy" referrerpolicy="no-referrer">
+          <img src="${qrImage}" alt="QR code for ${cardNumber}" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer">
         </div>
       </div>
     </section>
@@ -113,7 +113,7 @@ function renderCardBack({ user, cardType, cardNumber, qrValue, qrImage, themeCon
 
         <div class="dc-back-qr-wrap">
           <div class="qr-box qr-box-image qr-box-large">
-            <img src="${qrImage}" alt="QR code for ${cardNumber}" loading="lazy" referrerpolicy="no-referrer">
+            <img src="${qrImage}" alt="QR code for ${cardNumber}" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer">
           </div>
           <p class="dc-back-note">Use this QR for identification, scan, balance, and point services.</p>
         </div>
@@ -151,14 +151,14 @@ function renderFitnessGuestCard({ cardNumber, qrImage }) {
       >
         <div class="digital-card-flip-inner">
           <section class="digital-card digital-card-face digital-card-front fitness-card-image-shell" aria-hidden="false">
-            <img class="fitness-card-image" src="${FITNESS_GUEST_FRONT_IMAGE}" alt="Fitness Guest member card front" loading="lazy" referrerpolicy="no-referrer">
+            <img class="fitness-card-image" src="${FITNESS_GUEST_FRONT_IMAGE}" alt="Fitness Guest member card front" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer">
           </section>
 
           <section class="digital-card digital-card-face digital-card-back fitness-card-image-shell" aria-hidden="true">
-            <img class="fitness-card-image" src="${FITNESS_GUEST_BACK_IMAGE}" alt="Fitness Guest member card back" loading="lazy" referrerpolicy="no-referrer">
+            <img class="fitness-card-image" src="${FITNESS_GUEST_BACK_IMAGE}" alt="Fitness Guest member card back" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer">
             <div class="fitness-qr-slot" aria-label="QR code area">
               <div class="qr-box qr-box-image fitness-qr-box">
-                <img src="${qrImage}" alt="QR code for ${cardNumber}" loading="lazy" referrerpolicy="no-referrer">
+                <img src="${qrImage}" alt="QR code for ${cardNumber}" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer">
               </div>
             </div>
           </section>
