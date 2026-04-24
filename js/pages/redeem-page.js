@@ -1,20 +1,47 @@
 import { points, titleize, formatRelativeTime } from '../utils/helpers.js';
 
+function escapeHtml(value = '') {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function renderRewardThumb(reward = {}) {
+  const imageUrl = reward.imageUrl || reward.imageURL || reward.photoURL || '';
+  const title = reward.title || reward.titleTh || 'Reward';
+  if (imageUrl) {
+    return `
+      <div class="reward-thumb reward-thumb-image">
+        <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(title)}" loading="lazy" referrerpolicy="no-referrer">
+      </div>
+    `;
+  }
+  return `
+    <div class="reward-thumb reward-thumb-empty" aria-hidden="true">
+      <span>🎁</span>
+    </div>
+  `;
+}
+
 export function renderRedeemPage(user, snapshot = {}) {
   const rewards = (snapshot.rewards || []).map((reward) => `
     <article class="reward-card card">
-      <div class="reward-thumb"></div>
+      ${renderRewardThumb(reward)}
       <div class="reward-meta">
         <div>
-          <h3>${reward.title || reward.titleTh || 'Reward'}</h3>
-          <p class="muted">${reward.category || 'general'}</p>
+          <h3>${escapeHtml(reward.title || reward.titleTh || 'Reward')}</h3>
+          <p class="muted">${escapeHtml(titleize(reward.category || 'general'))}</p>
+          ${reward.description ? `<p class="reward-description">${escapeHtml(reward.description)}</p>` : ''}
         </div>
         <div class="reward-actions">
           <div class="info-row">
             <span class="badge">${points(reward.pointsRequired || 0)} pts</span>
             <span class="badge">Stock ${reward.stock ?? '-'}</span>
           </div>
-          <button class="btn btn-primary" type="button" data-reward-id="${reward.id}" data-reward-title="${reward.title || ''}" data-reward-points="${reward.pointsRequired || 0}">Redeem</button>
+          <button class="btn btn-primary" type="button" data-reward-id="${escapeHtml(reward.id)}" data-reward-title="${escapeHtml(reward.title || '')}" data-reward-points="${reward.pointsRequired || 0}">Redeem</button>
         </div>
       </div>
     </article>
@@ -23,7 +50,7 @@ export function renderRedeemPage(user, snapshot = {}) {
   const history = (snapshot.redemptions || []).slice(0, 6).map((item) => `
     <article class="transaction-item">
       <div>
-        <strong>${item.rewardTitle || item.title || 'Reward request'}</strong>
+        <strong>${escapeHtml(item.rewardTitle || item.title || 'Reward request')}</strong>
         <p class="muted">${formatRelativeTime(item.redeemedAt)}</p>
       </div>
       <strong>${titleize(item.status || 'pending')}</strong>
@@ -38,7 +65,7 @@ export function renderRedeemPage(user, snapshot = {}) {
           <h2>${points(snapshot.pointAccount?.points ?? user.points ?? 0)}</h2>
           <p>Choose a reward below. The system will create a redemption request in Firestore.</p>
         </div>
-        <span class="badge">${(user.cardType || '').replaceAll('_', ' ')}</span>
+        <span class="badge">${escapeHtml((user.cardType || '').replaceAll('_', ' '))}</span>
       </div>
       <div class="info-row">
         <span class="badge">Redeem when ready</span>
