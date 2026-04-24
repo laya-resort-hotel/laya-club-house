@@ -2367,3 +2367,204 @@
   .scan-v2-detail-box div { grid-template-columns: 1fr; }
   .scan-v2-detail-box strong { text-align: left; }
 }
+
+/* ── Scan Center desktop rebalance v3.0 ───────────────── */
+.scan-v3-root {
+  max-width: 1320px;
+  padding-top: 6px;
+}
+
+.scan-v3-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  margin-bottom: 20px;
+  padding: 22px 24px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(26,40,20,.98), rgba(16,28,13,.98));
+  border: 1px solid #2d3d22;
+  box-shadow: 0 24px 58px rgba(0,0,0,.2);
+}
+
+.scan-v3-kicker {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #c9a84c;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.scan-v3-hero-copy h2 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.1;
+  color: #f1e9cb;
+}
+
+.scan-v3-hero-copy p {
+  margin: 6px 0 0;
+  color: #7a8a6a;
+  font-size: 14px;
+}
+
+.scan-v3-hero-actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.scan-v3-tabs {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+  background: rgba(20,31,15,.75);
+}
+
+.scan-v3-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(360px, .9fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.scan-v3-workbench,
+.scan-v3-side-stack {
+  min-width: 0;
+}
+
+.scan-v3-workbench {
+  padding: 22px;
+}
+
+.scan-v3-panel-head {
+  margin-bottom: 16px;
+}
+
+.scan-v3-workbench-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 1.02fr) minmax(320px, .98fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.scan-v3-scan-pane {
+  min-width: 0;
+}
+
+.scan-v3-scanner-box {
+  aspect-ratio: 1.35 / 1;
+  min-height: 228px;
+}
+
+.scan-v3-manual-row {
+  margin-top: 12px;
+}
+
+.scan-v3-control-pane {
+  gap: 16px;
+}
+
+.scan-v3-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.scan-v3-side-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.scan-v3-recent-card {
+  padding: 18px 18px 14px;
+}
+
+.scan-v3-recent-list {
+  display: grid;
+  gap: 10px;
+  max-height: 540px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.scan-v3-recent-list .scan-v2-queue-item {
+  padding: 14px 15px;
+  border-radius: 16px;
+}
+
+.scan-v3-recent-list .queue-actions {
+  margin-left: auto;
+}
+
+.scan-v3-recent-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scan-v3-recent-list::-webkit-scrollbar-thumb {
+  background: rgba(201,168,76,.18);
+  border-radius: 999px;
+}
+
+@media (min-width: 1024px) {
+  .scan-v2-header {
+    margin-bottom: 18px;
+  }
+
+  .scan-v2-form {
+    gap: 16px;
+  }
+
+  .scan-station-panel {
+    gap: 14px;
+  }
+
+  .scan-location-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scan-quick-amounts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1180px) {
+  .scan-v3-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .scan-v3-workbench-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .scan-v3-side-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scan-v3-recent-list {
+    max-height: none;
+  }
+}
+
+@media (max-width: 820px) {
+  .scan-v3-hero {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .scan-v3-hero-actions {
+    justify-content: flex-start;
+  }
+
+  .scan-v3-side-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .scan-v3-fields-grid,
+  .scan-location-grid,
+  .scan-quick-amounts,
+  .scan-action-toggle,
+  .scan-action-toggle-3 {
+    grid-template-columns: 1fr;
+  }
+}
