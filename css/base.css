@@ -507,6 +507,55 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 .admin-row-actions { align-items: flex-end; }
 .admin-check { display: flex; align-items: center; gap: 10px; padding-top: 8px; }
 .admin-check input { width: auto; }
+.auth-login-toggle {
+  border: 1.5px solid rgba(201,165,80,.32);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(201,165,80,.08);
+}
+.auth-password-field {
+  position: relative;
+  border: 1.5px dashed rgba(255,255,255,.12);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255,255,255,.025);
+}
+.auth-password-field.is-required {
+  border-color: rgba(239,68,68,.55);
+  background: rgba(239,68,68,.07);
+}
+.auth-password-field em {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: #ffd6d6;
+  background: rgba(239,68,68,.14);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+}
+.field-help, .field-inline-error, .admin-form-note {
+  font-size: 12px;
+  line-height: 1.55;
+}
+.field-help, .admin-form-note { color: var(--muted); }
+.field-inline-error {
+  color: #ffd1d1;
+  font-weight: 700;
+  min-height: 18px;
+}
+input.is-invalid, select.is-invalid, textarea.is-invalid {
+  border-color: rgba(239,68,68,.85);
+  box-shadow: 0 0 0 4px rgba(239,68,68,.12);
+}
+label.has-error > span { color: #ffd1d1; }
+.admin-form-note {
+  padding: 10px 12px;
+  border: 1px solid rgba(201,165,80,.22);
+  border-radius: 14px;
+  background: rgba(201,165,80,.07);
+}
 .queue-actions-inline { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .info-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .queue-actions { display: grid; gap: 8px; justify-items: end; }

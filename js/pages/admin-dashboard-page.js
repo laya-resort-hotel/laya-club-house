@@ -274,17 +274,18 @@ export function renderAdminDashboardPage(user, snapshot = {}) {
             </label>
             <label><span>Language</span>
               <select name="language">
+                <option value="th" selected>th</option>
                 <option value="en">en</option>
-                <option value="th">th</option>
                 <option value="ru">ru</option>
                 <option value="zh">zh</option>
               </select>
             </label>
             <label><span>Wallet balance</span><input name="balance" type="number" min="0" value="0"></label>
             <label><span>Points</span><input name="points" type="number" min="0" value="0"></label>
-            <label class="admin-check"><input name="createAuthUser" type="checkbox"><span>Create Firebase login</span></label>
-            <label><span>Temporary password</span><input name="authPassword" type="password" minlength="6" placeholder="At least 6 characters"></label>
+            <label class="admin-check auth-login-toggle"><input name="createAuthUser" type="checkbox"><span>Create Firebase login</span></label>
+            <label class="auth-password-field"><span>Temporary password <em data-auth-required-label>required only when Firebase login is ticked</em></span><input name="authPassword" type="password" minlength="6" placeholder="Tick Firebase login first" autocomplete="new-password"><small class="field-help">Required only for new Firebase login accounts.</small></label>
           </div>
+          <p class="admin-form-note">Tip: you can upload the profile image before clicking Save. The system will create the member ID first, then upload the image automatically.</p>
           ${imageField('photo', 'Profile image', 'Profile image')}
           <div class="inline-actions">
             <button class="btn btn-primary" type="submit">Save member</button>
