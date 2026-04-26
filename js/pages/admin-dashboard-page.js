@@ -33,6 +33,19 @@ function queueActionButtons(item) {
       <button class="mini-btn mini-btn-success" data-scan-action="approve" data-scan-id="${item.id}">Process</button>
       <button class="mini-btn mini-btn-danger" data-scan-action="reject" data-scan-id="${item.id}">Reject</button>
     </div>
+    <section class="page-section admin-log-section admin-log-section--collapsed">
+      <details class="admin-log-disclosure">
+        <summary class="admin-log-summary">
+          <div>
+            <strong>Recent scan queue</strong>
+            <p class="muted">เปิดดูเมื่อจำเป็นเท่านั้น เพื่อลดความรกของหน้าจอ</p>
+          </div>
+          <span class="badge badge-outline">${(snapshot.recentScans || []).length} items</span>
+        </summary>
+        <div class="list admin-log-list">${recentScans || '<article class="transaction-item"><div><strong>No scan queue yet</strong><p class="muted">New top-up, deduct, earn point, and reward use requests will appear here.</p></div><strong>-</strong></article>'}</div>
+      </details>
+    </section>
+
   `;
 }
 
@@ -162,7 +175,7 @@ export function renderAdminDashboardPage(user, snapshot = {}) {
   const contentBanners = (snapshot.contentBanners || []).map(renderBannerRow).join('');
 
   return `
-    <section class="hero-card card admin-hero-card">
+    <section class="hero-card card">
       <div class="hero-meta">
         <div>
           <p class="eyebrow">Admin dashboard</p>
@@ -192,63 +205,29 @@ export function renderAdminDashboardPage(user, snapshot = {}) {
     </section>
 
     <section class="page-section">
-      <h2>Recent scan queue</h2>
-      <div class="list">${recentScans || '<article class="transaction-item"><div><strong>No scan queue yet</strong><p class="muted">New top-up, deduct, earn point, and reward use requests will appear here.</p></div><strong>-</strong></article>'}</div>
-    </section>
-
-    <section class="page-section">
       <h2>Recent wallet activity</h2>
       <div class="list">${recentTransactions || '<article class="transaction-item"><div><strong>No wallet activity yet</strong><p class="muted">Recent financial movements will render here once collections are live.</p></div><strong>-</strong></article>'}</div>
     </section>
 
-    <section class="page-section admin-member-page" id="admin-members">
-      <div class="admin-member-titlebar">
-        <div>
-          <p class="eyebrow">Members management</p>
-          <h2>Create Member</h2>
-          <p class="muted">Create a member profile, card, wallet, point account, and optional Firebase login in one guided form.</p>
-        </div>
-        <span class="badge badge-gold">★ All fields marked * are required</span>
-      </div>
-
-      <article class="card admin-panel admin-member-card">
-        <div class="admin-member-card-head">
-          <div>
-            <p class="eyebrow">Admin form</p>
-            <h3>Member Profile</h3>
-            <p class="muted">Start with profile details, then choose access, card, wallet, and login options.</p>
-          </div>
-          <span class="badge badge-outline admin-save-mode">Firestore + Firebase ready</span>
-        </div>
-        <form id="admin-member-form" class="admin-form admin-member-form stack-list" novalidate>
+    <section class="page-section" id="admin-members">
+      <h2>Members CRUD</h2>
+      <article class="card admin-panel">
+        <p class="muted">Create Firestore profiles normally, or tick “Create Firebase login” to provision a password account through Cloud Functions before saving profile, card, wallet, and point docs.</p>
+        <form id="admin-member-form" class="admin-form stack-list">
           <input type="hidden" name="uid">
           <input type="hidden" name="photoURL">
           <input type="hidden" name="photoStoragePath">
           <input type="hidden" name="hasAuthAccount">
           <input type="hidden" name="authManaged">
-
-          <div class="admin-form-section">
-            <div class="admin-section-heading">
-              <strong>Profile details</strong>
-              <span>Basic information shown in the Club House system.</span>
-            </div>
-            <div class="admin-member-grid">
-              <label class="lux-field required-field"><span>Display name <b>*</b></span><div class="input-wrap"><i>👤</i><input name="displayName" placeholder="Noi Guest" required></div><small class="field-help">The name shown throughout the system.</small></label>
-              <label class="lux-field"><span>Email</span><div class="input-wrap"><i>✉️</i><input name="email" type="email" placeholder="guest@example.com" autocomplete="email"></div><small class="field-help">Required when creating Firebase login.</small></label>
-              <label class="lux-field"><span>First name</span><div class="input-wrap"><i>👤</i><input name="firstName" placeholder="Noi" autocomplete="given-name"></div><small class="field-help">Member's legal first name.</small></label>
-              <label class="lux-field"><span>Last name</span><div class="input-wrap"><i>👤</i><input name="lastName" placeholder="Guest" autocomplete="family-name"></div><small class="field-help">Member's legal last name.</small></label>
-              <label class="lux-field"><span>Phone</span><div class="input-wrap"><i>☎️</i><input name="phone" placeholder="08x-xxx-xxxx" inputmode="tel" autocomplete="tel"></div><small class="field-help">Enter a valid phone number.</small></label>
-              <label class="lux-field"><span>Room no.</span><div class="input-wrap"><i>🚪</i><input name="roomNo" placeholder="D101" autocomplete="off"></div><small class="field-help">Room or residence number, if applicable.</small></label>
-            </div>
-          </div>
-
-          <div class="admin-form-section">
-            <div class="admin-section-heading">
-              <strong>Access and card setup</strong>
-              <span>Set role, department, card tier, language, status, wallet, and points.</span>
-            </div>
-            <div class="admin-member-grid">
-              <label class="lux-field required-field"><span>Role <b>*</b></span><div class="input-wrap select-wrap"><i>🛡️</i><select name="role">
+          <div class="grid grid-2">
+            <label><span>Display name</span><input name="displayName" placeholder="Noi Guest" required></label>
+            <label><span>Email</span><input name="email" type="email" placeholder="guest@example.com"></label>
+            <label><span>First name</span><input name="firstName" placeholder="Noi"></label>
+            <label><span>Last name</span><input name="lastName" placeholder="Guest"></label>
+            <label><span>Phone</span><input name="phone" placeholder="08x-xxx-xxxx"></label>
+            <label><span>Room no.</span><input name="roomNo" placeholder="D101"></label>
+            <label><span>Role</span>
+              <select name="role">
                 <option value="member">member</option>
                 <option value="guest">guest</option>
                 <option value="staff">staff</option>
@@ -259,8 +238,10 @@ export function renderAdminDashboardPage(user, snapshot = {}) {
                 <option value="fitness_staff">fitness_staff</option>
                 <option value="finance_staff">finance_staff</option>
                 <option value="department_manager">department_manager</option>
-              </select></div><small class="field-help">Choose what this member can access.</small></label>
-              <label class="lux-field"><span>Department</span><div class="input-wrap select-wrap"><i>🏢</i><select name="department">
+              </select>
+            </label>
+            <label><span>Department</span>
+              <select name="department">
                 <option value="">-</option>
                 <option value="admin">admin</option>
                 <option value="fo">fo</option>
@@ -268,61 +249,58 @@ export function renderAdminDashboardPage(user, snapshot = {}) {
                 <option value="fb">fb</option>
                 <option value="engineering">engineering</option>
                 <option value="fitness">fitness</option>
-              </select></div><small class="field-help">Optional department tag for staff users.</small></label>
-              <label class="lux-field"><span>Card type</span><div class="input-wrap select-wrap"><i>💳</i><select name="cardType">
-                <option value="team_member" selected>team_member</option>
+              </select>
+            </label>
+            <label><span>Card type</span>
+              <select name="cardType">
                 <option value="excom">excom</option>
                 <option value="hod">hod</option>
                 <option value="manager">manager</option>
+                <option value="team_member">team_member</option>
                 <option value="fitness_guest">fitness_guest</option>
                 <option value="guest_point">guest_point</option>
-              </select></div><small class="field-help">Default is Team Member to avoid accidental Excom cards.</small></label>
-              <label class="lux-field"><span>Card level</span><div class="input-wrap"><i>⭐</i><input name="cardLevel" type="number" min="0" max="10" value="1"></div><small class="field-help">Access card level assigned to this member.</small></label>
-              <label class="lux-field"><span>Card color</span><div class="input-wrap select-wrap"><i>🎨</i><select name="cardColor">
-                <option value="gold" selected>gold</option>
+              </select>
+            </label>
+            <label><span>Card level</span><input name="cardLevel" type="number" min="0" value="1"></label>
+            <label><span>Card color</span>
+              <select name="cardColor">
+                <option value="gold">gold</option>
                 <option value="silver">silver</option>
                 <option value="bronze">bronze</option>
                 <option value="white">white</option>
                 <option value="black">black</option>
                 <option value="red">red</option>
-              </select></div><small class="field-help">Gold is the safe default for readability.</small></label>
-              <label class="lux-field"><span>Status</span><div class="input-wrap select-wrap"><i>✅</i><select name="status">
+              </select>
+            </label>
+            <label><span>Status</span>
+              <select name="status">
                 <option value="active">active</option>
                 <option value="suspended">suspended</option>
                 <option value="expired">expired</option>
                 <option value="checked_out">checked_out</option>
-              </select></div><small class="field-help">Set the current member status.</small></label>
-              <label class="lux-field"><span>Language</span><div class="input-wrap select-wrap"><i>🌐</i><select name="language">
-                <option value="th" selected>th</option>
+              </select>
+            </label>
+            <label><span>Language</span>
+              <select name="language">
                 <option value="en">en</option>
+                <option value="th">th</option>
                 <option value="ru">ru</option>
                 <option value="zh">zh</option>
-              </select></div><small class="field-help">Default language is Thai for hotel operations.</small></label>
-              <label class="lux-field"><span>Wallet balance</span><div class="input-wrap"><i>฿</i><input name="balance" type="number" min="0" value="0"></div><small class="field-help">Opening wallet balance in THB.</small></label>
-              <label class="lux-field"><span>Points</span><div class="input-wrap"><i>🏆</i><input name="points" type="number" min="0" value="0"></div><small class="field-help">Opening point balance.</small></label>
-            </div>
+              </select>
+            </label>
+            <label><span>Wallet balance</span><input name="balance" type="number" min="0" value="0"></label>
+            <label><span>Points</span><input name="points" type="number" min="0" value="0"></label>
+            <label class="admin-check"><input name="createAuthUser" type="checkbox"><span>Create Firebase login</span></label>
+            <label><span>Temporary password</span><input name="authPassword" type="password" minlength="6" placeholder="At least 6 characters"></label>
           </div>
-
-          <div class="admin-form-section admin-login-section">
-            <div class="admin-section-heading">
-              <strong>Firebase login</strong>
-              <span>Only enable this when the member needs to sign in with email and password.</span>
-            </div>
-            <div class="admin-member-grid">
-              <label class="admin-check auth-login-toggle lux-auth-toggle admin-full-row"><input name="createAuthUser" type="checkbox"><span><strong>Create Firebase login</strong><small>Provision a password account through Firebase before saving profile docs.</small></span></label>
-              <label class="auth-password-field lux-password-field admin-full-row"><span>Temporary password <em data-auth-required-label>required only when Firebase login is enabled</em></span><div class="input-wrap"><i>🔒</i><input name="authPassword" type="password" minlength="6" placeholder="Tick Firebase login first" autocomplete="new-password"></div><small class="field-help">This password is used for the first login. The member can change it later.</small></label>
-            </div>
-          </div>
-
-          <p class="admin-form-note">Tip: you can choose a profile image before clicking Save. The system will create the member ID first, then upload the image automatically.</p>
           ${imageField('photo', 'Profile image', 'Profile image')}
-          <div class="inline-actions admin-form-actions">
-            <button class="btn btn-secondary" type="button" data-admin-reset="member">Cancel / Reset</button>
-            <button class="btn btn-primary" type="submit">👤 Create / Save Member</button>
+          <div class="inline-actions">
+            <button class="btn btn-primary" type="submit">Save member</button>
+            <button class="btn btn-secondary" type="button" data-admin-reset="member">Reset</button>
           </div>
         </form>
       </article>
-      <div class="list admin-member-list">${members || '<article class="transaction-item"><div><strong>No members yet</strong><p class="muted">Create the first member profile from the form above.</p></div><strong>-</strong></article>'}</div>
+      <div class="list">${members || '<article class="transaction-item"><div><strong>No members yet</strong><p class="muted">Create the first member profile from the form above.</p></div><strong>-</strong></article>'}</div>
     </section>
 
     <section class="page-section" id="admin-rewards">
@@ -394,6 +372,19 @@ export function renderAdminDashboardPage(user, snapshot = {}) {
         </form>
       </article>
       <div class="list">${contentBanners || '<article class="transaction-item"><div><strong>No notices yet</strong><p class="muted">Create a banner or notice for Home.</p></div><strong>-</strong></article>'}</div>
+    </section>
+
+    <section class="page-section admin-log-section admin-log-section--collapsed">
+      <details class="admin-log-disclosure">
+        <summary class="admin-log-summary">
+          <div>
+            <strong>Recent scan queue</strong>
+            <p class="muted">เปิดดูเมื่อจำเป็นเท่านั้น เพื่อลดความรกของหน้าจอ</p>
+          </div>
+          <span class="badge badge-outline">${(snapshot.recentScans || []).length} items</span>
+        </summary>
+        <div class="list admin-log-list">${recentScans || '<article class="transaction-item"><div><strong>No scan queue yet</strong><p class="muted">New top-up, deduct, earn point, and reward use requests will appear here.</p></div><strong>-</strong></article>'}</div>
+      </details>
     </section>
   `;
 }

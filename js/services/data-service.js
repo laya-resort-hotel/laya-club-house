@@ -302,29 +302,17 @@ export async function loadHomeSnapshot(user) {
     };
   }
 
-  const [content, notificationCount, latestRequests, card, wallet, pointAccount] = await Promise.all([
+  const [content, notificationCount, latestRequests] = await Promise.all([
     readActiveContent(),
     countDocs(query(collection(db, 'notifications'), where('targetUserId', '==', user.uid), where('isRead', '==', false))).catch(() => 0),
-    readHomeLatestActivity(user).catch(() => []),
-    readCollection('cards', { where: [{ field: 'userId', op: '==', value: user.uid }], limit: 1 }).then((rows) => rows[0] || null).catch(() => null),
-    readSingleByUserId('wallet_accounts', user.uid).catch(() => null),
-    readSingleByUserId('point_accounts', user.uid).catch(() => null)
+    readHomeLatestActivity(user).catch(() => [])
   ]);
-
-  const themeKey = card?.cardTheme || user.cardTheme || getDefaultThemeKey(card?.cardType || user.cardType, card?.cardColor || user.cardColor);
-  const cardTheme = themeKey
-    ? await readCollection('card_themes', { where: [{ field: 'key', op: '==', value: themeKey }], limit: 1 }).then((rows) => rows[0] || null).catch(() => null)
-    : null;
 
   return {
     ...content,
     quickServices: getBuiltinServiceCards(user, content.serviceLinks),
     unreadNotifications: notificationCount,
-    latestRequests,
-    card,
-    cardTheme,
-    wallet: wallet || { balance: Number(user.balance || 0) },
-    points: pointAccount || { points: Number(user.points || 0) }
+    latestRequests
   };
 }
 
@@ -360,22 +348,6 @@ export async function loadMemberSnapshot(user) {
   };
 }
 
-async function readActiveRewardsForRedeem() {
-  // Avoid composite-index dependency here. A query like
-  // where(active == true) + orderBy(sortOrder) can fail while the Firestore
-  // index is missing/building, which previously made Redeem show an empty list.
-  // Read active rewards first, then sort client-side.
-  const rows = await readCollection('rewards', {
-    where: [{ field: 'active', op: '==', value: true }],
-    limit: 50
-  });
-
-  return sortBySortOrder(rows)
-    .filter((item) => item.active === true)
-    .filter((item) => Number(item.stock ?? 0) > 0 || item.stock === '' || item.stock == null)
-    .slice(0, 30);
-}
-
 export async function loadRedeemSnapshot(user) {
   if (!user?.uid && !shouldUseDemoData()) throw new Error('Redeem snapshot requires an authenticated production user.');
   if (shouldUseDemoData()) {
@@ -386,18 +358,13 @@ export async function loadRedeemSnapshot(user) {
     };
   }
 
-  const [rewardsResult, redemptions, pointAccount] = await Promise.all([
-    readActiveRewardsForRedeem().then((items) => ({ items, error: null })).catch((error) => ({ items: [], error })),
+  const [rewards, redemptions, pointAccount] = await Promise.all([
+    readCollection('rewards', { where: [{ field: 'active', op: '==', value: true }], orderBy: { field: 'sortOrder', dir: 'asc' }, limit: 30 }).catch(() => []),
     readCollection('redemptions', { where: [{ field: 'userId', op: '==', value: user.uid }], orderBy: { field: 'redeemedAt', dir: 'desc' }, limit: 20 }).catch(() => []),
     readSingleByUserId('point_accounts', user.uid).catch(() => null)
   ]);
 
-  return {
-    rewards: rewardsResult.items,
-    rewardLoadError: rewardsResult.error?.message || '',
-    redemptions,
-    pointAccount
-  };
+  return { rewards, redemptions, pointAccount };
 }
 
 export async function requestRewardRedemption(user, reward) {
@@ -525,10 +492,10 @@ export async function saveMemberProfile(adminUser, payload = {}) {
   const department = payload.department || null;
   const cardType = payload.cardType || 'team_member';
   const cardLevel = Number(payload.cardLevel || 0);
-  const cardColor = payload.cardColor || 'gold';
+  const cardColor = payload.cardColor || 'white';
   const cardTheme = payload.cardTheme || getDefaultThemeKey(cardType, cardColor);
   const status = payload.status || 'active';
-  const language = payload.language || 'th';
+  const language = payload.language || 'en';
   const balance = Number(payload.balance || 0);
   const pts = Number(payload.points || 0);
   const photoURL = payload.photoURL || '';

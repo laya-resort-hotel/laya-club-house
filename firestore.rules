@@ -131,8 +131,7 @@ service cloud.firestore {
 
     match /wallet_accounts/{walletAccountId} {
       allow read: if signedIn() && (resource.data.userId == myUid() || isFinanceLike() || isManagerLike());
-      allow create, update: if isAdminLike();
-      allow delete: if false;
+      allow create, update, delete: if false;
     }
 
     match /wallet_transactions/{transactionId} {
@@ -142,8 +141,7 @@ service cloud.firestore {
 
     match /point_accounts/{pointAccountId} {
       allow read: if signedIn() && (resource.data.userId == myUid() || isFinanceLike() || isManagerLike());
-      allow create, update: if isAdminLike();
-      allow delete: if false;
+      allow create, update, delete: if false;
     }
 
     match /point_transactions/{transactionId} {

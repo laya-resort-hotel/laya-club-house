@@ -105,132 +105,9 @@ window.addEventListener('online', updateNetworkBadge);
 window.addEventListener('offline', updateNetworkBadge);
 async function startGlobalNotificationStreams(){ if(appState.notificationState.subscribed) return; appState.notificationState.subscribed=true; subscribeNotifications(appState.user, async (items)=>{ const firstLoad = appState.notificationState.lastAlertTs===0; appState.notificationState.items=items; appState.notificationState.unreadCount=items.filter((item)=>!item.isRead).length; paintHeader(); renderNav(); const latestUnread=items.find((item)=>!item.isRead); const latestTs=toMillis(latestUnread?.createdAt); if(latestTs && latestTs>(appState.notificationState.lastAlertTs||0)){ appState.notificationState.lastAlertTs=latestTs; if(!firstLoad){ await playAlertTone({ times:2, frequency:860 }); showToast(latestUnread.title || 'New notification', latestUnread.body || 'Open notifications to review it.'); }}}); const unsubscribePush = await subscribeForegroundPush(async (payload)=>{ const title=payload?.notification?.title || payload?.data?.title || 'LAYA Card Alert'; const body=payload?.notification?.body || payload?.data?.body || 'Open the app to review the latest update.'; await playAlertTone({ times:2, frequency:920 }); showToast(title, body); }).catch(()=>()=>{}); registerCleanup(unsubscribePush); }
 function bindRouteButtons(scope=document){ qsa('[data-route]', scope).forEach((button)=>button.addEventListener('click', ()=>{ location.hash=button.dataset.route; })); qsa('[data-external-url]', scope).forEach((button)=>button.addEventListener('click', ()=>{ const url=button.dataset.externalUrl; if(!url || url==='#'){ showToast('Room-service link missing', 'Configure the external room-service URL in Admin content links.'); return; } window.open(url, '_blank', 'noopener'); })); }
-async function bindCommonActions(){ bindRouteButtons(bottomNav); bindRouteButtons(pageRoot);
-  const toggleCardFlip = (widget)=>{ if(!widget) return; const stage = widget.querySelector('[data-card-flip-stage]'); const toggle = widget.querySelector('[data-card-flip-toggle]'); if(!stage) return; const flipped = widget.classList.toggle('is-flipped'); stage.setAttribute('aria-pressed', flipped ? 'true' : 'false'); const front = widget.querySelector('.digital-card-front'); const back = widget.querySelector('.digital-card-back'); front?.setAttribute('aria-hidden', flipped ? 'true' : 'false'); back?.setAttribute('aria-hidden', flipped ? 'false' : 'true'); if(toggle){ const label = flipped ? (toggle.dataset.backLabel || 'Show front') : (toggle.dataset.frontLabel || 'Show back'); toggle.textContent = label; toggle.setAttribute('aria-pressed', flipped ? 'true' : 'false'); toggle.setAttribute('aria-label', label); } };
-  qsa('[data-card-flip-toggle]', pageRoot).forEach((button)=>{ button.addEventListener('click', (event)=>{ event.preventDefault(); event.stopPropagation(); toggleCardFlip(button.closest('[data-card-flip-widget]')); }); });
-  qsa('[data-card-flip-stage]', pageRoot).forEach((stage)=>{ stage.addEventListener('click', ()=>toggleCardFlip(stage.closest('[data-card-flip-widget]'))); stage.addEventListener('keydown', (event)=>{ if(event.key==='Enter' || event.key===' '){ event.preventDefault(); toggleCardFlip(stage.closest('[data-card-flip-widget]')); } }); });
-  qsa('.setting-item', pageRoot).forEach((row)=>{ row.addEventListener('click', async ()=>{ const text=row.textContent.trim().toLowerCase(); if(text.includes('logout')){ await logout(); location.href='./login.html'; } if(text.includes('clear cache')){ await clearAppCache(); showToast('Cache cleared', 'Reload the app to fetch the latest files.'); } if(text.includes('install app')){ showToast('Install app', 'Use the browser install prompt for this device.'); } if(text.includes('enable push')){ const result=await requestPushPermissionAndRegister(appState.user).catch((error)=>({ ok:false, reason:error?.message || 'Push setup failed.' })); appState.notificationState.pushEnabled=!!result?.ok; appState.notificationState.pushReason=result?.ok ? 'Push alerts connected' : (result?.reason || 'Push setup failed.'); showToast(result?.ok ? 'Push alerts enabled' : 'Push setup blocked', result?.ok ? 'This device is now registered for alerts.' : appState.notificationState.pushReason); if(appState.currentRoute==='settings') await mount(); } if(text.includes('check version')){ showToast('Current version', `App version ${appState.appVersion}`); } }); }); qsa('[data-reward-id]', pageRoot).forEach((button)=>{ button.addEventListener('click', async ()=>{ try{ const reward={ id:button.dataset.rewardId, title:button.dataset.rewardTitle, pointsRequired:Number(button.dataset.rewardPoints || 0)}; const result=await requestRewardRedemption(appState.user, reward); showToast('Reward ready', result?.rewardCode || 'Reward request created successfully.'); await mount(); }catch(error){ showToast('Redeem failed', error?.message || 'Unable to create redemption request.'); } }); }); }
+async function bindCommonActions(){ bindRouteButtons(bottomNav); bindRouteButtons(pageRoot); qsa('.setting-item', pageRoot).forEach((row)=>{ row.addEventListener('click', async ()=>{ const text=row.textContent.trim().toLowerCase(); if(text.includes('logout')){ await logout(); location.href='./login.html'; } if(text.includes('clear cache')){ await clearAppCache(); showToast('Cache cleared', 'Reload the app to fetch the latest files.'); } if(text.includes('install app')){ showToast('Install app', 'Use the browser install prompt for this device.'); } if(text.includes('enable push')){ const result=await requestPushPermissionAndRegister(appState.user).catch((error)=>({ ok:false, reason:error?.message || 'Push setup failed.' })); appState.notificationState.pushEnabled=!!result?.ok; appState.notificationState.pushReason=result?.ok ? 'Push alerts connected' : (result?.reason || 'Push setup failed.'); showToast(result?.ok ? 'Push alerts enabled' : 'Push setup blocked', result?.ok ? 'This device is now registered for alerts.' : appState.notificationState.pushReason); if(appState.currentRoute==='settings') await mount(); } if(text.includes('check version')){ showToast('Current version', `App version ${appState.appVersion}`); } }); }); qsa('[data-reward-id]', pageRoot).forEach((button)=>{ button.addEventListener('click', async ()=>{ try{ const reward={ id:button.dataset.rewardId, title:button.dataset.rewardTitle, pointsRequired:Number(button.dataset.rewardPoints || 0)}; const result=await requestRewardRedemption(appState.user, reward); showToast('Reward ready', result?.rewardCode || 'Reward request created successfully.'); await mount(); }catch(error){ showToast('Redeem failed', error?.message || 'Unable to create redemption request.'); } }); }); }
 async function startScanner(codeInput){ const video=qs('#scanner-video', pageRoot); const reader=qs('#scanner-reader', pageRoot); const statusNode=qs('#scanner-status', pageRoot); if(!video || !codeInput) return; try{ const support=scannerCapabilities(); const result=await startQrScanner({ videoEl: video, readerEl: reader, statusEl: statusNode, onCode: async (found, engine)=>{ codeInput.value=found; if(statusNode) statusNode.textContent=`Scanned via ${engine}: ${found}`; await reportOperationalEvent('scanner', 'scan_success', { engine, route:'scan' }); } }); if(statusNode){ const supportHint=support.barcodeDetector ? 'Native detector ready.' : 'Using fallback scanner engine.'; statusNode.textContent=`Scanner started (${result?.mode || 'camera'}). ${supportHint}`; } }catch(error){ if(statusNode) statusNode.textContent=handleUiError('scanner_start', error, { route:'scan' }); showToast('Scanner unavailable', error?.message || 'Unable to start scanner.'); } }
-async function bindScanActions(snapshot){
-  const modeInput=qs('#scan-mode', pageRoot);
-  const codeInput=qs('#scan-code', pageRoot);
-  const amountInput=qs('#scan-amount', pageRoot);
-  const frontdeskAmountInput=qs('#scan-amount-frontdesk', pageRoot);
-  const pointsInput=qs('#scan-points', pageRoot);
-  const noteInput=qs('#scan-note', pageRoot);
-  const locationInput=qs('#scan-location', pageRoot);
-  const form=qs('#scan-form', pageRoot);
-  const lookupBtn=qs('#lookup-card-btn', pageRoot);
-  const startScanBtn=qs('#start-scan-btn', pageRoot);
-  const stopScanBtn=qs('#stop-scan-btn', pageRoot);
-  const previewOpenBtn=qs('#scan-preview-open-btn', pageRoot);
-
-  const stationMeta={
-    fnb:{ title:'F&B Station', subtitle:'Deductions & reward points', defaultMode:'deduct' },
-    fitness:{ title:'Fitness Station', subtitle:'Towel management', defaultMode:'towel_borrow' },
-    frontdesk:{ title:'Front Desk Station', subtitle:'Top-up, balance, and membership lookup', defaultMode:'topup' }
-  };
-
-  const setMode=(mode)=>{
-    if(modeInput) modeInput.value=mode;
-    qsa('[data-mode]', pageRoot).forEach((node)=>node.classList.toggle('is-active', node.dataset.mode===mode));
-    const confirm=qs('.scan-v2-confirm', pageRoot);
-    if(confirm){
-      const labels={ topup:'Confirm Top-up', deduct:'Confirm Deduction', earn_point:'Confirm Points Award', towel_borrow:'Confirm Borrow', towel_return:'Confirm Return', balance_check:'Check Balance', membership_lookup:'Confirm Lookup', redeem_use:'Confirm Reward Use' };
-      confirm.textContent=labels[mode] || 'Confirm Transaction';
-    }
-  };
-
-  const setStation=(station)=>{
-    const meta=stationMeta[station] || stationMeta.fnb;
-    qsa('[data-scan-station]', pageRoot).forEach((node)=>node.classList.toggle('is-active', node.dataset.scanStation===station));
-    qsa('[data-station-panel]', pageRoot).forEach((panel)=>{
-      const active=panel.dataset.stationPanel===station;
-      panel.classList.toggle('is-active', active);
-      panel.hidden=!active;
-    });
-    const title=qs('#scan-station-title', pageRoot);
-    const subtitle=qs('#scan-station-subtitle', pageRoot);
-    if(title) title.textContent=meta.title;
-    if(subtitle) subtitle.textContent=meta.subtitle;
-    setMode(meta.defaultMode);
-  };
-
-  qsa('[data-scan-station]', pageRoot).forEach((button)=>button.addEventListener('click', ()=>setStation(button.dataset.scanStation || 'fnb')));
-  qsa('[data-mode]', pageRoot).forEach((button)=>button.addEventListener('click', ()=>setMode(button.dataset.mode || 'topup')));
-
-  qsa('[data-location]', pageRoot).forEach((button)=>button.addEventListener('click', ()=>{
-    qsa('[data-location]', pageRoot).forEach((node)=>node.classList.remove('is-active'));
-    button.classList.add('is-active');
-    if(locationInput) locationInput.value=button.dataset.location || 'room_front';
-    const label=qs('#scan-location-label', pageRoot);
-    if(label) label.textContent=button.textContent.trim();
-  }));
-
-  qsa('[data-quick-amount]', pageRoot).forEach((button)=>button.addEventListener('click', ()=>{
-    if(frontdeskAmountInput) frontdeskAmountInput.value=button.dataset.quickAmount || '';
-    if(amountInput) amountInput.value=button.dataset.quickAmount || '';
-    qsa('[data-quick-amount]', pageRoot).forEach((node)=>node.classList.remove('is-active'));
-    button.classList.add('is-active');
-  }));
-
-  frontdeskAmountInput?.addEventListener('input', ()=>{ if(amountInput) amountInput.value=frontdeskAmountInput.value; });
-  amountInput?.addEventListener('input', ()=>{ if(frontdeskAmountInput && (modeInput?.value==='topup')) frontdeskAmountInput.value=amountInput.value; });
-
-  const openScanner=async()=>{ await startScanner(codeInput); };
-  startScanBtn?.addEventListener('click', openScanner);
-  previewOpenBtn?.addEventListener('click', openScanner);
-  stopScanBtn?.addEventListener('click', async ()=>{ await stopQrScanner(); const statusNode=qs('#scanner-status', pageRoot); if(statusNode) statusNode.textContent='Scanner stopped.'; });
-
-  lookupBtn?.addEventListener('click', async ()=>{
-    try{
-      setButtonBusy(lookupBtn, true, { busyText:'Looking up...' });
-      const preview=await findCardByCode(codeInput?.value || '');
-      if(!preview){ showToast('Card not found', 'No card or QR value matched that code.'); return; }
-      appState.lastSnapshot={ ...(snapshot||{}), preview };
-      pageRoot.innerHTML=renderRoute('scan', appState.user, appState.lastSnapshot, appState);
-      await bindCommonActions();
-      await bindScanActions(appState.lastSnapshot);
-    }catch(error){
-      showToast('Lookup failed', handleUiError('scan_lookup', error, { code:codeInput?.value || '' }));
-    } finally {
-      setButtonBusy(lookupBtn, false);
-    }
-  });
-
-  form?.addEventListener('submit', async (event)=>{
-    event.preventDefault();
-    const submitButton=form?.querySelector('button[type="submit"]');
-    try{
-      const mode=modeInput?.value || 'topup';
-      const effectiveAmount = mode==='topup' ? (frontdeskAmountInput?.value || amountInput?.value || '') : (amountInput?.value || '');
-      const effectivePoints = pointsInput?.value || '';
-      validateScanPayload({ mode, code: codeInput?.value || '', amount: effectiveAmount, pointAmount: effectivePoints, location: locationInput?.value || 'room_front', note: noteInput?.value || '' });
-      const preview=appState.lastSnapshot?.preview || null;
-      await runBusyAction({ form, button: submitButton, busyText:'Submitting...', action: async ()=>{
-        await createScanRequest(appState.user, { mode, code: codeInput?.value || '', amount:Number(effectiveAmount || 0), pointAmount:Number(effectivePoints || 0), note: noteInput?.value || '', location: locationInput?.value || 'room_front', roomNo: preview?.roomNo || null, targetCardId: preview?.cardId || null, targetUserId: preview?.userId || null, targetDisplayName: preview?.displayName || '' });
-        await reportOperationalEvent('scan_request', 'created', { mode });
-      } });
-      showToast('Transaction recorded', 'Scan request created. Use Process to apply it via Cloud Functions.');
-      await mount();
-    }catch(error){
-      showToast('Scan request failed', handleUiError('scan_request_create', error, { mode:modeInput?.value || 'topup' }));
-    }
-  });
-
-  qsa('[data-scan-action]', pageRoot).forEach((button)=>button.addEventListener('click', async ()=>{
-    try{
-      const action=button.dataset.scanAction;
-      await updateScanRequestStatus(button.dataset.scanId, action, action==='reject' ? 'Rejected from UI' : 'Processed from UI');
-      await reportOperationalEvent('scan_request', action, { scanRequestId:button.dataset.scanId });
-      await mount();
-    }catch(error){
-      showToast('Scan update failed', handleUiError('scan_request_update', error, { scanRequestId:button.dataset.scanId, action:button.dataset.scanAction }));
-    }
-  }));
-
-  setStation('fnb');
-}
+async function bindScanActions(snapshot){ const modeInput=qs('#scan-mode', pageRoot); const codeInput=qs('#scan-code', pageRoot); const amountInput=qs('#scan-amount', pageRoot); const pointsInput=qs('#scan-points', pageRoot); const noteInput=qs('#scan-note', pageRoot); const locationInput=qs('#scan-location', pageRoot); const form=qs('#scan-form', pageRoot); const lookupBtn=qs('#lookup-card-btn', pageRoot); const startScanBtn=qs('#start-scan-btn', pageRoot); const stopScanBtn=qs('#stop-scan-btn', pageRoot); qsa('[data-mode]', pageRoot).forEach((button)=>button.addEventListener('click', ()=>{ qsa('[data-mode]', pageRoot).forEach((node)=>node.classList.remove('is-active')); button.classList.add('is-active'); if(modeInput) modeInput.value=button.dataset.mode; })); startScanBtn?.addEventListener('click', async ()=>{ await startScanner(codeInput); }); stopScanBtn?.addEventListener('click', async ()=>{ await stopQrScanner(); const statusNode=qs('#scanner-status', pageRoot); if(statusNode) statusNode.textContent='Scanner stopped.'; }); lookupBtn?.addEventListener('click', async ()=>{ try{ setButtonBusy(lookupBtn, true, { busyText:'Looking up...' }); const preview=await findCardByCode(codeInput?.value || ''); if(!preview){ showToast('Card not found', 'No card or QR value matched that code.'); return; } appState.lastSnapshot={ ...(snapshot||{}), preview }; pageRoot.innerHTML=renderRoute('scan', appState.user, appState.lastSnapshot, appState); await bindCommonActions(); await bindScanActions(appState.lastSnapshot); }catch(error){ showToast('Lookup failed', handleUiError('scan_lookup', error, { code:codeInput?.value || '' })); } finally { setButtonBusy(lookupBtn, false); } }); form?.addEventListener('submit', async (event)=>{ event.preventDefault(); const submitButton=form?.querySelector('button[type="submit"]'); try{ validateScanPayload({ mode: modeInput?.value || 'topup', code: codeInput?.value || '', amount: amountInput?.value, pointAmount: pointsInput?.value, location: locationInput?.value || 'room_front', note: noteInput?.value || '' }); const preview=appState.lastSnapshot?.preview || null; await runBusyAction({ form, button: submitButton, busyText:'Submitting...', action: async ()=>{ await createScanRequest(appState.user, { mode: modeInput?.value || 'topup', code: codeInput?.value || '', amount:Number(amountInput?.value || 0), pointAmount:Number(pointsInput?.value || 0), note: noteInput?.value || '', location: locationInput?.value || 'room_front', roomNo: preview?.roomNo || null, targetCardId: preview?.cardId || null, targetUserId: preview?.userId || null, targetDisplayName: preview?.displayName || '' }); await reportOperationalEvent('scan_request', 'created', { mode: modeInput?.value || 'topup' }); } }); showToast('Scan request created', 'Use Process to apply it via Cloud Functions.'); await mount(); }catch(error){ showToast('Scan request failed', handleUiError('scan_request_create', error, { mode: modeInput?.value || 'topup' })); } }); qsa('[data-scan-action]', pageRoot).forEach((button)=>button.addEventListener('click', async ()=>{ try{ const action=button.dataset.scanAction; await updateScanRequestStatus(button.dataset.scanId, action, action==='reject' ? 'Rejected from UI' : 'Processed from UI'); await reportOperationalEvent('scan_request', action, { scanRequestId:button.dataset.scanId }); await mount(); }catch(error){ showToast('Scan update failed', handleUiError('scan_request_update', error, { scanRequestId:button.dataset.scanId, action:button.dataset.scanAction })); } })); }
 async function bindAdminActions(){
   qsa('[data-scan-action]', pageRoot).forEach((button)=>button.addEventListener('click', async ()=>{
     try{
@@ -269,8 +146,6 @@ async function bindAdminActions(){
       if(authToggle) authToggle.checked = false;
       const pwd = qs('[name="authPassword"]', form);
       if(pwd) pwd.value='';
-      updateAuthPasswordUi();
-      ['email', 'phone', 'roomNo', 'authPassword', 'cardLevel', 'balance', 'points'].forEach((fieldName) => validateMemberInlineField(fieldName));
     }
     if(form===rewardForm) setPreview(form, 'image', payload.imageUrl || payload.imageURL || '');
     if(form===bannerForm) setPreview(form, 'image', payload.imageUrl || payload.imageURL || '');
@@ -280,110 +155,10 @@ async function bindAdminActions(){
     form.reset();
     qsa('input[type="hidden"]', form).forEach((input)=>{ input.value=''; });
     qsa('input[type="file"]', form).forEach((input)=>{ input.value=''; });
-    if(type==='member'){
-      const lang = qs('[name="language"]', form);
-      const color = qs('[name="cardColor"]', form);
-      if(lang) lang.value = 'th';
-      if(color) color.value = 'gold';
-      setPreview(form, 'photo', '');
-      updateAuthPasswordUi();
-    }
+    if(type==='member') setPreview(form, 'photo', '');
     if(type==='reward' || type==='content_banner') setPreview(form, 'image', '');
   };
   const formPayload = (form)=>Object.fromEntries(new FormData(form).entries());
-
-  const ensureInlineMessage = (input) => {
-    const label = input?.closest?.('label');
-    if (!label) return null;
-    let message = label.querySelector('.field-inline-error');
-    if (!message) {
-      message = document.createElement('small');
-      message.className = 'field-inline-error';
-      label.appendChild(message);
-    }
-    return message;
-  };
-
-  const setFieldState = (input, message = '') => {
-    if (!input) return true;
-    const label = input.closest?.('label');
-    const messageNode = ensureInlineMessage(input);
-    const hasError = !!message;
-    input.classList.toggle('is-invalid', hasError);
-    label?.classList.toggle('has-error', hasError);
-    if (messageNode) messageNode.textContent = message;
-    return !hasError;
-  };
-
-  const isValidAdminEmail = (value = '') => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
-  const isValidAdminPhone = (value = '') => {
-    const text = String(value || '').trim();
-    if (!text) return true;
-    const digits = text.replace(/\D/g, '');
-    return /^[+()\d\s-]{6,25}$/.test(text) && digits.length >= 6 && digits.length <= 15;
-  };
-  const isValidAdminRoomNo = (value = '') => {
-    const text = String(value || '').trim().toUpperCase();
-    return !text || /^[A-Z]{1,3}\d{1,4}$/.test(text) || /^\d{3,5}$/.test(text);
-  };
-
-  const validateMemberInlineField = (fieldName) => {
-    if (!memberForm) return true;
-    const input = qs(`[name="${fieldName}"]`, memberForm);
-    if (!input) return true;
-    const value = String(input.value || '').trim();
-    const createAuth = !!qs('[name="createAuthUser"]', memberForm)?.checked;
-    let message = '';
-    if (fieldName === 'displayName' && !value) message = 'Display name is required.';
-    if (fieldName === 'email') {
-      if (createAuth && !value) message = 'Email is required when creating Firebase login.';
-      else if (value && !isValidAdminEmail(value)) message = 'Email format is invalid. Example: guest@example.com';
-    }
-    if (fieldName === 'phone' && !isValidAdminPhone(value)) message = 'Phone format looks invalid. Use digits, +, -, spaces or brackets only.';
-    if (fieldName === 'roomNo' && !isValidAdminRoomNo(value)) message = 'Room number format looks invalid. Example: D101 or 101.';
-    if (fieldName === 'authPassword' && createAuth && String(input.value || '').length < 6) message = 'Temporary password must be at least 6 characters.';
-    if (['cardLevel', 'balance', 'points'].includes(fieldName)) {
-      const number = Number(input.value || 0);
-      if (!Number.isFinite(number) || number < 0) message = 'Please enter a valid number.';
-      if (fieldName === 'cardLevel' && number > 10) message = 'Card level must be 0–10.';
-    }
-    return setFieldState(input, message);
-  };
-
-  const validateMemberInlineForm = () => {
-    const fields = ['displayName', 'email', 'phone', 'roomNo', 'authPassword', 'cardLevel', 'balance', 'points'];
-    const results = fields.map((name) => validateMemberInlineField(name));
-    const firstInvalid = qsa('.is-invalid', memberForm)[0];
-    if (firstInvalid) firstInvalid.focus();
-    return results.every(Boolean);
-  };
-
-  const updateAuthPasswordUi = () => {
-    const authToggle = qs('[name="createAuthUser"]', memberForm);
-    const password = qs('[name="authPassword"]', memberForm);
-    const checked = !!authToggle?.checked;
-    const field = password?.closest?.('label');
-    field?.classList.toggle('is-required', checked);
-    if (password) {
-      password.disabled = !checked;
-      password.placeholder = checked ? 'At least 6 characters' : 'Tick Firebase login first';
-      if (!checked) {
-        password.value = '';
-        setFieldState(password, '');
-      }
-    }
-    validateMemberInlineField('email');
-    if (checked) validateMemberInlineField('authPassword');
-  };
-
-  if(memberForm){
-    updateAuthPasswordUi();
-    qs('[name="createAuthUser"]', memberForm)?.addEventListener('change', updateAuthPasswordUi);
-    ['displayName', 'email', 'phone', 'roomNo', 'authPassword', 'cardLevel', 'balance', 'points'].forEach((fieldName) => {
-      qs(`[name="${fieldName}"]`, memberForm)?.addEventListener('input', () => validateMemberInlineField(fieldName));
-      qs(`[name="${fieldName}"]`, memberForm)?.addEventListener('blur', () => validateMemberInlineField(fieldName));
-    });
-  }
 
   qs('[name="photoFile"]', memberForm)?.addEventListener('change', (event)=>{
     const file=event.target.files?.[0];
@@ -405,11 +180,6 @@ async function bindAdminActions(){
       payload.createAuthUser = qs('[name="createAuthUser"]', memberForm)?.checked;
       payload.hasAuthAccount = payload.hasAuthAccount || false;
       payload.authManaged = payload.authManaged || false;
-      if(!validateMemberInlineForm()){
-        showToast('Check member form', 'Please correct the highlighted fields before saving.');
-        return;
-      }
-      const isNewMember = !payload.uid;
       validateMemberPayload(payload);
       if(payload.createAuthUser && !payload.uid){
         const authResult = await createManagedAuthUserCallable(payload);
@@ -419,7 +189,7 @@ async function bindAdminActions(){
       }
       const profileFile = qs('[name="photoFile"]', memberForm)?.files?.[0];
       if(profileFile){
-        if(!payload.uid) payload.uid = makeLocalId('member');
+        if(!payload.uid) throw new Error('Save or create the member account before uploading a profile image.');
         const uploaded = await uploadProfileImage(payload.uid, profileFile);
         payload.photoURL = uploaded?.downloadURL || '';
         payload.photoStoragePath = uploaded?.storagePath || '';
@@ -427,7 +197,7 @@ async function bindAdminActions(){
       delete payload.createAuthUser;
       delete payload.authPassword;
       await saveMemberProfile(appState.user, payload);
-      await reportOperationalEvent('admin_member', isNewMember ? 'created' : 'updated', { targetUid: payload.uid || null });
+      await reportOperationalEvent('admin_member', payload.uid ? 'updated' : 'created', { targetUid: payload.uid || null });
       resetForm(memberForm, 'member');
       await mount();
     }catch(error){
